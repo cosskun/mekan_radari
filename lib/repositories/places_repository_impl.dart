@@ -10,6 +10,8 @@ import 'places_repository.dart';
 class PlacesRepositoryImpl implements PlacesRepository {
   final http.Client _client;
   final List<String> _overpassEndpoints;
+  final Map<String, ({DateTime timestamp, List<Place> places})> _cache = {};
+  final Map<String, List<LocationPreset>> _searchCache = {};
 
   static const List<String> defaultOverpassEndpoints = [
     'https://overpass-api.de/api/interpreter',
@@ -22,6 +24,12 @@ class PlacesRepositoryImpl implements PlacesRepository {
     List<String>? overpassEndpoints,
   })  : _client = client ?? http.Client(),
         _overpassEndpoints = overpassEndpoints ?? defaultOverpassEndpoints;
+
+  /// Clears in-memory cache
+  void clearCache() {
+    _cache.clear();
+    _searchCache.clear();
+  }
 
   @override
   double calculateDistance(
@@ -40,9 +48,16 @@ class PlacesRepositoryImpl implements PlacesRepository {
 
   @override
   Future<List<LocationPreset>> searchAddress(String query) async {
-    if (query.trim().isEmpty) return [];
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return [];
+
+    final cacheKey = trimmed.toLowerCase();
+    if (_searchCache.containsKey(cacheKey)) {
+      return _searchCache[cacheKey]!;
+    }
+
     try {
-      final encoded = Uri.encodeComponent(query.trim());
+      final encoded = Uri.encodeComponent(trimmed);
       final uri = Uri.parse(
         'https://nominatim.openstreetmap.org/search?q=$encoded&format=json&addressdetails=1&limit=6&accept-language=tr',
       );
@@ -51,11 +66,11 @@ class PlacesRepositoryImpl implements PlacesRepository {
         headers: {
           'User-Agent': 'MekanRadariFlutterApp/1.0 (contact@mekanradari.app)',
         },
-      ).timeout(const Duration(seconds: 8));
+      ).timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.map((item) {
+        final results = data.map((item) {
           final displayName = item['display_name']?.toString() ?? query;
           final parts = displayName.split(',').map((e) => e.trim()).toList();
           final title = parts.isNotEmpty ? parts.first : query;
@@ -69,6 +84,9 @@ class PlacesRepositoryImpl implements PlacesRepository {
                 double.tryParse(item['lon']?.toString() ?? '') ?? 29.0264,
           );
         }).toList();
+
+        _searchCache[cacheKey] = results;
+        return results;
       }
     } catch (_) {}
     return [];
@@ -82,6 +100,15 @@ class PlacesRepositoryImpl implements PlacesRepository {
     String? googleApiKey,
     String? searchQuery,
   }) async {
+    // Check in-memory cache for instant zero-latency retrieval (<60 mins)
+    final cacheKey =
+        '${lat.toStringAsFixed(3)}_${lon.toStringAsFixed(3)}_${radiusMeters.round()}_${googleApiKey ?? 'free'}_${searchQuery ?? ''}';
+    final cached = _cache[cacheKey];
+    if (cached != null &&
+        DateTime.now().difference(cached.timestamp).inMinutes < 60) {
+      return cached.places;
+    }
+
     // 1. If user entered a Google Places API Key, try official Google Places API (v1) first
     if (googleApiKey != null && googleApiKey.trim().isNotEmpty) {
       try {
@@ -93,6 +120,7 @@ class PlacesRepositoryImpl implements PlacesRepository {
           searchQuery: searchQuery,
         );
         if (googlePlaces.isNotEmpty) {
+          _cache[cacheKey] = (timestamp: DateTime.now(), places: googlePlaces);
           return googlePlaces;
         }
       } catch (_) {
@@ -125,13 +153,14 @@ out center 250;
               },
               body: {'data': overpassQuery},
             )
-            .timeout(const Duration(seconds: 12));
+            .timeout(const Duration(milliseconds: 3800));
 
         if (response.statusCode == 200) {
           final decoded = jsonDecode(utf8.decode(response.bodyBytes));
           final elements = decoded['elements'] as List<dynamic>? ?? [];
           final places = _parseOverpassElements(elements, lat, lon);
           if (places.isNotEmpty) {
+            _cache[cacheKey] = (timestamp: DateTime.now(), places: places);
             return places;
           }
         }
@@ -141,7 +170,9 @@ out center 250;
     }
 
     // 3. Fallback if offline or all Overpass mirrors timed out
-    return _buildFallbackPlacesAround(lat, lon);
+    final fallback = _buildFallbackPlacesAround(lat, lon);
+    _cache[cacheKey] = (timestamp: DateTime.now(), places: fallback);
+    return fallback;
   }
 
   Future<List<Place>> _fetchFromGooglePlacesApi({

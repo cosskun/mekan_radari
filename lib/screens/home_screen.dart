@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-    if (_controller.isLoading) {
+    if (_controller.isLoading && _controller.allPlaces.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
