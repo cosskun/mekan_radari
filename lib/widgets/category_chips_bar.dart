@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
 import '../models/place_model.dart';
+import '../theme/app_theme.dart';
 
 /// Horizontally scrollable row of venue category filter chips.
 class CategoryChipsBar extends StatelessWidget {
@@ -46,10 +47,10 @@ class CategoryChipsBar extends StatelessWidget {
                   controller.setCategoryId(cat.id);
                   onCategorySelected?.call(cat.id);
                 },
-                selectedColor: const Color(0xFFF59E0B),
-                backgroundColor: const Color(0xFF0F172A),
+                selectedColor: AppColors.primary,
+                backgroundColor: AppColors.inputBackground,
                 labelStyle: TextStyle(
-                  color: isSelected ? Colors.black : Colors.white70,
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
                   fontWeight:
                       isSelected ? FontWeight.bold : FontWeight.w500,
                   fontSize: 12.5,
@@ -59,8 +60,8 @@ class CategoryChipsBar extends StatelessWidget {
                 ),
                 side: BorderSide(
                   color: isSelected
-                      ? const Color(0xFFF59E0B)
-                      : Colors.white12,
+                      ? AppColors.primary
+                      : AppColors.cardBorder,
                 ),
                 showCheckmark: false,
               );

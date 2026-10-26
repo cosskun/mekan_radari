@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/place_model.dart';
+import '../theme/app_theme.dart';
 
 /// Sorting options for venue visitor reviews.
 enum ReviewSortOption {
@@ -316,7 +317,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -341,7 +342,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                         child: Text(
                           '${widget.place.name} İçin Yorum Yaz',
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -349,14 +350,14 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                       ),
                       IconButton(
                         onPressed: () => Navigator.pop(ctx),
-                        icon: const Icon(Icons.close, color: Colors.white70),
+                        icon: const Icon(Icons.close, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   const Text(
                     'Puanınız:',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -370,7 +371,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                           starVal <= selectedStars
                               ? Icons.star_rounded
                               : Icons.star_outline_rounded,
-                          color: const Color(0xFFFBBF24),
+                          color: AppColors.primary,
                           size: 36,
                         ),
                       );
@@ -379,15 +380,23 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                   const SizedBox(height: 12),
                   TextField(
                     controller: nameController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppColors.textPrimary),
                     decoration: InputDecoration(
                       labelText: 'Adınız (İsteğe bağlı)',
-                      labelStyle: const TextStyle(color: Colors.white60),
+                      labelStyle: const TextStyle(color: AppColors.textTertiary),
                       filled: true,
-                      fillColor: const Color(0xFF0F172A),
+                      fillColor: AppColors.inputBackground,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
                       ),
                     ),
                   ),
@@ -395,15 +404,23 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                   TextField(
                     controller: commentController,
                     maxLines: 3,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppColors.textPrimary),
                     decoration: InputDecoration(
                       labelText: 'Deneyiminizi ve önerdiğiniz lezzetleri paylaşın...',
-                      labelStyle: const TextStyle(color: Colors.white60),
+                      labelStyle: const TextStyle(color: AppColors.textTertiary),
                       filled: true,
-                      fillColor: const Color(0xFF0F172A),
+                      fillColor: AppColors.inputBackground,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
                       ),
                     ),
                   ),
@@ -412,8 +429,8 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                     width: double.infinity,
                     child: FilledButton.icon(
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFFF59E0B),
-                        foregroundColor: Colors.black,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -476,7 +493,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
       builder: (context, scrollController) {
         return Container(
           decoration: const BoxDecoration(
-            color: Color(0xFF0F172A),
+            color: AppColors.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Column(
@@ -486,7 +503,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                 width: 44,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: AppColors.cardBorder,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -504,16 +521,16 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF59E0B).withValues(alpha: 0.18),
+                            color: AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: const Color(0xFFF59E0B).withValues(alpha: 0.5),
+                              color: AppColors.primary.withValues(alpha: 0.4),
                             ),
                           ),
                           child: Text(
                             place.subCategory,
                             style: const TextStyle(
-                              color: Color(0xFFFBBF24),
+                              color: AppColors.primaryDark,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -526,7 +543,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                            color: AppColors.greenLight,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -535,13 +552,13 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                               const Icon(
                                 Icons.verified_rounded,
                                 size: 13,
-                                color: Color(0xFF34D399),
+                                color: AppColors.green,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 place.dataSource,
                                 style: const TextStyle(
-                                  color: Color(0xFF34D399),
+                                  color: AppColors.green,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -560,8 +577,8 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                 ? Icons.favorite_rounded
                                 : Icons.favorite_border_rounded,
                             color: _isFav
-                                ? const Color(0xFFEF4444)
-                                : Colors.white70,
+                                ? AppColors.red
+                                : AppColors.textDisabled,
                             size: 28,
                           ),
                         ),
@@ -573,7 +590,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                     Text(
                       place.name,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                       ),
@@ -592,13 +609,13 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                             const Icon(
                               Icons.near_me_rounded,
                               size: 16,
-                              color: Color(0xFF38BDF8),
+                              color: AppColors.blue,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '${place.formattedDistance} uzaklıkta (~${place.walkingMinutes} dk yürüyüş)',
                               style: const TextStyle(
-                                color: Color(0xFF38BDF8),
+                                color: AppColors.blue,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
                               ),
@@ -608,7 +625,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                         Text(
                           '•  ${place.priceSymbol}',
                           style: const TextStyle(
-                            color: Colors.white70,
+                            color: AppColors.textSecondary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -616,8 +633,8 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                           place.isOpenNow ? '•  Şu an Açık' : '•  Kapalı',
                           style: TextStyle(
                             color: place.isOpenNow
-                                ? const Color(0xFF4ADE80)
-                                : Colors.redAccent,
+                                ? AppColors.green
+                                : AppColors.red,
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
@@ -632,7 +649,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                       children: [
                         const Icon(
                           Icons.location_on_outlined,
-                          color: Colors.white54,
+                          color: AppColors.textTertiary,
                           size: 18,
                         ),
                         const SizedBox(width: 6),
@@ -640,7 +657,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                           child: Text(
                             place.address,
                             style: const TextStyle(
-                              color: Colors.white70,
+                              color: AppColors.textSecondary,
                               fontSize: 13,
                             ),
                           ),
@@ -652,7 +669,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                       children: [
                         const Icon(
                           Icons.access_time_rounded,
-                          color: Colors.white54,
+                          color: AppColors.textTertiary,
                           size: 17,
                         ),
                         const SizedBox(width: 6),
@@ -660,7 +677,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                           child: Text(
                             'Çalışma Saatleri: ${place.openingHours}',
                             style: const TextStyle(
-                              color: Colors.white70,
+                              color: AppColors.textSecondary,
                               fontSize: 13,
                             ),
                           ),
@@ -675,7 +692,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                         Expanded(
                           child: ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2563EB),
+                              backgroundColor: AppColors.blue,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
@@ -697,7 +714,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                         Expanded(
                           child: ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF10B981),
+                              backgroundColor: AppColors.green,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
@@ -724,9 +741,9 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
+                        color: AppColors.inputBackground,
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: Colors.white10),
+                        border: Border.all(color: AppColors.cardBorder),
                       ),
                       child: Row(
                         children: [
@@ -742,7 +759,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                   Text(
                                     safeOverallRating.toStringAsFixed(1),
                                     style: const TextStyle(
-                                      color: Colors.white,
+                                      color: AppColors.textPrimary,
                                       fontSize: 42,
                                       fontWeight: FontWeight.w900,
                                       height: 1.0,
@@ -756,7 +773,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                         i < safeOverallRating.round()
                                             ? Icons.star_rounded
                                             : Icons.star_border_rounded,
-                                        color: const Color(0xFFFBBF24),
+                                        color: AppColors.primary,
                                         size: 18,
                                       );
                                     }),
@@ -765,7 +782,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                   Text(
                                     '$_reviewCount değerlendirme',
                                     style: const TextStyle(
-                                      color: Colors.white60,
+                                      color: AppColors.textSecondary,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -827,15 +844,13 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: isBarSelected
-                                              ? const Color(0xFFF59E0B)
-                                                  .withValues(alpha: 0.22)
+                                              ? AppColors.primaryLight
                                               : Colors.transparent,
                                           borderRadius:
                                               BorderRadius.circular(8),
                                           border: Border.all(
                                             color: isBarSelected
-                                                ? const Color(0xFFFBBF24)
-                                                    .withValues(alpha: 0.6)
+                                                ? AppColors.primary
                                                 : Colors.transparent,
                                           ),
                                         ),
@@ -845,8 +860,8 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                               '$star',
                                               style: TextStyle(
                                                 color: isBarSelected
-                                                    ? const Color(0xFFFBBF24)
-                                                    : Colors.white70,
+                                                    ? AppColors.primaryDark
+                                                    : AppColors.textSecondary,
                                                 fontSize: 12,
                                                 fontWeight: isBarSelected
                                                     ? FontWeight.bold
@@ -858,9 +873,8 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                               Icons.star_rounded,
                                               size: 13,
                                               color: isBarSelected
-                                                  ? const Color(0xFFFBBF24)
-                                                  : const Color(0xFFFBBF24)
-                                                      .withValues(alpha: 0.8),
+                                                  ? AppColors.primaryDark
+                                                  : AppColors.primary,
                                             ),
                                             const SizedBox(width: 8),
                                             Expanded(
@@ -870,12 +884,12 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                                 child: LinearProgressIndicator(
                                                   value: ratio,
                                                   minHeight: 7,
-                                                  backgroundColor: Colors.white12,
+                                                  backgroundColor: AppColors.cardBorder,
                                                   valueColor:
                                                       AlwaysStoppedAnimation(
                                                     isBarSelected
-                                                        ? const Color(0xFFF59E0B)
-                                                        : const Color(0xFFFBBF24),
+                                                        ? AppColors.primaryDark
+                                                        : AppColors.primary,
                                                   ),
                                                 ),
                                               ),
@@ -902,7 +916,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                     const Text(
                       'Öne Çıkan Lezzetler & Özellikler',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -919,12 +933,10 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                               vertical: 7,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF59E0B)
-                                  .withValues(alpha: 0.14),
+                              color: AppColors.primaryLight,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: const Color(0xFFF59E0B)
-                                    .withValues(alpha: 0.35),
+                                color: AppColors.primary.withValues(alpha: 0.35),
                               ),
                             ),
                             child: Row(
@@ -933,15 +945,15 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                 const Icon(
                                   Icons.local_fire_department_rounded,
                                   size: 15,
-                                  color: Color(0xFFFBBF24),
+                                  color: AppColors.primaryDark,
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
                                   item,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                     fontSize: 12,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
@@ -955,14 +967,14 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                               vertical: 7,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1E293B),
+                              color: AppColors.inputBackground,
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white12),
+                              border: Border.all(color: AppColors.cardBorder),
                             ),
                             child: Text(
                               tag,
                               style: const TextStyle(
-                                color: Colors.white70,
+                                color: AppColors.textSecondary,
                                 fontSize: 12,
                               ),
                             ),
@@ -979,7 +991,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                         Text(
                           'Ziyaretçi Yorumları (${_reviews.length})',
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                           ),
@@ -989,12 +1001,12 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                           icon: const Icon(
                             Icons.rate_review_rounded,
                             size: 18,
-                            color: Color(0xFFFBBF24),
+                            color: AppColors.primaryDark,
                           ),
                           label: const Text(
                             'Yorum Yaz',
                             style: TextStyle(
-                              color: Color(0xFFFBBF24),
+                              color: AppColors.primaryDark,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -1043,7 +1055,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                     : 'Tümü (${currentFiltered.length} yorum)',
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  color: Colors.white60,
+                                  color: AppColors.textSecondary,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -1054,29 +1066,29 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                 const Icon(
                                   Icons.sort_rounded,
                                   size: 16,
-                                  color: Colors.white60,
+                                  color: AppColors.textSecondary,
                                 ),
                                 const SizedBox(width: 6),
                                 Container(
                                   height: 32,
                                   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1E293B),
+                                    color: AppColors.surface,
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.white12),
+                                    border: Border.all(color: AppColors.cardBorder),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<ReviewSortOption>(
                                       key: const Key('review_sort_button'),
                                       value: _selectedSortOption,
-                                      dropdownColor: const Color(0xFF1E293B),
+                                      dropdownColor: AppColors.surface,
                                       icon: const Icon(
                                         Icons.arrow_drop_down,
-                                        color: Color(0xFFFBBF24),
+                                        color: AppColors.primaryDark,
                                         size: 18,
                                       ),
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: AppColors.textPrimary,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -1125,9 +1137,9 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                             padding: const EdgeInsets.all(24),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1E293B).withValues(alpha: 0.5),
+                              color: AppColors.inputBackground,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.white10),
+                              border: Border.all(color: AppColors.cardBorder),
                             ),
                             child: Column(
                               children: [
@@ -1136,7 +1148,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                       ? Icons.star_border_rounded
                                       : Icons.rate_review_outlined,
                                   size: 40,
-                                  color: Colors.white38,
+                                  color: AppColors.textTertiary,
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
@@ -1145,7 +1157,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                       : 'Bu mekan için henüz değerlendirme yapılmamış.',
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
-                                    color: Colors.white70,
+                                    color: AppColors.textSecondary,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -1158,7 +1170,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                     child: const Text(
                                       'Tüm Yorumları Göster',
                                       style: TextStyle(
-                                        color: Color(0xFFFBBF24),
+                                        color: AppColors.primaryDark,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -1168,13 +1180,13 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                     onPressed: _showAddReviewDialog,
                                     icon: const Icon(
                                       Icons.edit_note_rounded,
-                                      color: Color(0xFFFBBF24),
+                                      color: AppColors.primaryDark,
                                       size: 18,
                                     ),
                                     label: const Text(
                                       'İlk Değerlendirmeyi Siz Yapın',
                                       style: TextStyle(
-                                        color: Color(0xFFFBBF24),
+                                        color: AppColors.primaryDark,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -1215,13 +1227,14 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1E293B),
+                                color: AppColors.surface,
                                 borderRadius: BorderRadius.circular(16),
+                                boxShadow: AppColors.cardShadow,
                                 border: Border.all(
                                   color: rev.isUserReview
-                                      ? const Color(0xFFF59E0B)
+                                      ? AppColors.primary
                                           .withValues(alpha: 0.5)
-                                      : Colors.white10,
+                                      : AppColors.cardBorder,
                                 ),
                               ),
                               child: Column(
@@ -1234,11 +1247,11 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                       CircleAvatar(
                                         radius: 18,
                                         backgroundColor:
-                                            const Color(0xFF334155),
+                                            AppColors.inputBackground,
                                         child: Text(
                                           avatarLetter,
                                           style: const TextStyle(
-                                            color: Color(0xFFFBBF24),
+                                            color: AppColors.primaryDark,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -1252,7 +1265,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                             Text(
                                               displayAuthor,
                                               style: const TextStyle(
-                                                color: Colors.white,
+                                                color: AppColors.textPrimary,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
                                               ),
@@ -1270,18 +1283,14 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                                     vertical: 2,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    color:
-                                                        const Color(0xFF38BDF8)
-                                                            .withValues(
-                                                                alpha: 0.15),
+                                                    color: AppColors.blueLight,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             6),
                                                     border: Border.all(
-                                                      color:
-                                                          const Color(0xFF38BDF8)
-                                                              .withValues(
-                                                                  alpha: 0.35),
+                                                      color: AppColors.blue
+                                                          .withValues(
+                                                              alpha: 0.35),
                                                     ),
                                                   ),
                                                   child: Row(
@@ -1291,15 +1300,13 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                                       const Icon(
                                                         Icons.verified_rounded,
                                                         size: 11,
-                                                        color:
-                                                            Color(0xFF38BDF8),
+                                                        color: AppColors.blue,
                                                       ),
                                                       const SizedBox(width: 3),
                                                       Text(
                                                         rev.authorBadge,
                                                         style: const TextStyle(
-                                                          color:
-                                                              Color(0xFF38BDF8),
+                                                          color: AppColors.blue,
                                                           fontSize: 10,
                                                           fontWeight:
                                                               FontWeight.w600,
@@ -1316,25 +1323,20 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                                       vertical: 2,
                                                     ),
                                                     decoration: BoxDecoration(
-                                                      color:
-                                                          const Color(0xFFF59E0B)
-                                                              .withValues(
-                                                                  alpha: 0.18),
+                                                      color: AppColors.primaryLight,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               6),
                                                       border: Border.all(
-                                                        color:
-                                                            const Color(0xFFF59E0B)
-                                                                .withValues(
-                                                                    alpha: 0.4),
+                                                        color: AppColors.primary
+                                                            .withValues(
+                                                                alpha: 0.4),
                                                       ),
                                                     ),
                                                     child: const Text(
                                                       'Sizin Yorumunuz',
                                                       style: TextStyle(
-                                                        color:
-                                                            Color(0xFFFBBF24),
+                                                        color: AppColors.primaryDark,
                                                         fontSize: 10,
                                                         fontWeight:
                                                             FontWeight.bold,
@@ -1349,7 +1351,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                       Text(
                                         rev.relativeTime,
                                         style: const TextStyle(
-                                          color: Colors.white38,
+                                          color: AppColors.textTertiary,
                                           fontSize: 11,
                                         ),
                                       ),
@@ -1369,12 +1371,11 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                           vertical: 2,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFFBBF24)
-                                              .withValues(alpha: 0.18),
+                                          color: AppColors.primaryLight,
                                           borderRadius:
                                               BorderRadius.circular(6),
                                           border: Border.all(
-                                            color: const Color(0xFFFBBF24)
+                                            color: AppColors.primary
                                                 .withValues(alpha: 0.4),
                                           ),
                                         ),
@@ -1384,7 +1385,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                             Text(
                                               safeRevRating.toStringAsFixed(1),
                                               style: const TextStyle(
-                                                color: Color(0xFFFBBF24),
+                                                color: AppColors.primaryDark,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -1393,7 +1394,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                             const Icon(
                                               Icons.star_rounded,
                                               size: 13,
-                                              color: Color(0xFFFBBF24),
+                                              color: AppColors.primaryDark,
                                             ),
                                           ],
                                         ),
@@ -1405,7 +1406,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                             i < safeRevRating.round()
                                                 ? Icons.star_rounded
                                                 : Icons.star_border_rounded,
-                                            color: const Color(0xFFFBBF24),
+                                            color: AppColors.primary,
                                             size: 15,
                                           );
                                         }),
@@ -1436,7 +1437,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                   Text(
                                     rev.comment,
                                     style: const TextStyle(
-                                      color: Colors.white,
+                                      color: AppColors.textPrimary,
                                       fontSize: 13.5,
                                       height: 1.45,
                                     ),
@@ -1453,10 +1454,10 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                             vertical: 3,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.05),
+                                            color: AppColors.inputBackground,
                                             borderRadius:
                                                 BorderRadius.circular(6),
+                                            border: Border.all(color: AppColors.cardBorder),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -1464,13 +1465,13 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                               const Icon(
                                                 Icons.restaurant_menu,
                                                 size: 11,
-                                                color: Colors.white60,
+                                                color: AppColors.textSecondary,
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
                                                 item,
                                                 style: const TextStyle(
-                                                  color: Colors.white70,
+                                                  color: AppColors.textSecondary,
                                                   fontSize: 11,
                                                 ),
                                               ),
@@ -1504,17 +1505,14 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: isLiked
-                                              ? const Color(0xFF38BDF8)
-                                                  .withValues(alpha: 0.18)
-                                              : Colors.white
-                                                  .withValues(alpha: 0.05),
+                                              ? AppColors.blueLight
+                                              : AppColors.inputBackground,
                                           borderRadius:
                                               BorderRadius.circular(8),
                                           border: Border.all(
                                             color: isLiked
-                                                ? const Color(0xFF38BDF8)
-                                                    .withValues(alpha: 0.5)
-                                                : Colors.white12,
+                                                ? AppColors.blue
+                                                : AppColors.cardBorder,
                                           ),
                                         ),
                                         child: Row(
@@ -1526,16 +1524,16 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                                   : Icons.thumb_up_outlined,
                                               size: 13,
                                               color: isLiked
-                                                  ? const Color(0xFF38BDF8)
-                                                  : Colors.white60,
+                                                  ? AppColors.blue
+                                                  : AppColors.textSecondary,
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
                                               'Faydalı ($currentLikes)',
                                               style: TextStyle(
                                                 color: isLiked
-                                                    ? const Color(0xFF38BDF8)
-                                                    : Colors.white60,
+                                                    ? AppColors.blue
+                                                    : AppColors.textSecondary,
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -1584,16 +1582,16 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFBBF24) : const Color(0xFF1E293B),
+          color: isSelected ? AppColors.primary : AppColors.inputBackground,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? const Color(0xFFFBBF24) : Colors.white12,
+            color: isSelected ? AppColors.primary : AppColors.cardBorder,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.black : Colors.white70,
+            color: isSelected ? Colors.white : AppColors.textSecondary,
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
@@ -1619,25 +1617,25 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
     final Color badgeColor;
     final Color badgeBg;
     if (total == 0) {
-      badgeColor = Colors.white60;
-      badgeBg = Colors.white.withValues(alpha: 0.08);
+      badgeColor = AppColors.textDisabled;
+      badgeBg = AppColors.cardBorder;
     } else if (positivePct >= 70) {
-      badgeColor = const Color(0xFF34D399);
-      badgeBg = const Color(0xFF10B981).withValues(alpha: 0.18);
+      badgeColor = AppColors.green;
+      badgeBg = AppColors.greenLight;
     } else if (positivePct >= 40) {
-      badgeColor = const Color(0xFFFBBF24);
-      badgeBg = const Color(0xFFFBBF24).withValues(alpha: 0.18);
+      badgeColor = AppColors.primaryDark;
+      badgeBg = AppColors.primaryLight;
     } else {
-      badgeColor = const Color(0xFFEF4444);
-      badgeBg = const Color(0xFFEF4444).withValues(alpha: 0.18);
+      badgeColor = AppColors.red;
+      badgeBg = AppColors.redLight;
     }
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: AppColors.inputBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: AppColors.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1651,7 +1649,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                     Icon(
                       Icons.auto_graph_rounded,
                       size: 16,
-                      color: Color(0xFF38BDF8),
+                      color: AppColors.blue,
                     ),
                     SizedBox(width: 6),
                     Expanded(
@@ -1659,7 +1657,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                         'Duygu & Memnuniyet Analizi',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
@@ -1696,21 +1694,21 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                   if (positiveCount > 0)
                     Expanded(
                       flex: positiveCount,
-                      child: Container(color: const Color(0xFF10B981)),
+                      child: Container(color: AppColors.green),
                     ),
                   if (neutralCount > 0)
                     Expanded(
                       flex: neutralCount,
-                      child: Container(color: const Color(0xFFFBBF24)),
+                      child: Container(color: AppColors.primary),
                     ),
                   if (criticalCount > 0)
                     Expanded(
                       flex: criticalCount,
-                      child: Container(color: const Color(0xFFEF4444)),
+                      child: Container(color: AppColors.red),
                     ),
                   if (total == 0)
                     Expanded(
-                      child: Container(color: Colors.white12),
+                      child: Container(color: AppColors.cardBorder),
                     ),
                 ],
               ),
@@ -1724,19 +1722,19 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
             children: [
               _buildSentimentLegendItem(
                 icon: Icons.sentiment_very_satisfied_rounded,
-                color: const Color(0xFF10B981),
+                color: AppColors.green,
                 label: 'Olumlu',
                 pct: positivePct,
               ),
               _buildSentimentLegendItem(
                 icon: Icons.sentiment_neutral_rounded,
-                color: const Color(0xFFFBBF24),
+                color: AppColors.primaryDark,
                 label: 'Dengeli',
                 pct: neutralPct,
               ),
               _buildSentimentLegendItem(
                 icon: Icons.sentiment_dissatisfied_rounded,
-                color: const Color(0xFFEF4444),
+                color: AppColors.red,
                 label: 'Eleştiri',
                 pct: criticalPct,
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
+import '../theme/app_theme.dart';
 
 /// Horizontal filter row containing star rating chips, review count popup, and sort popup.
 class FilterAndSortBar extends StatelessWidget {
@@ -47,7 +48,7 @@ class FilterAndSortBar extends StatelessWidget {
             children: [
               const Text(
                 'Min. Puan:',
-                style: TextStyle(color: Colors.white60, fontSize: 12),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
               ),
               const SizedBox(width: 6),
               ...ratingPresets.map((star) {
@@ -71,19 +72,19 @@ class FilterAndSortBar extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFFFBBF24)
-                            : const Color(0xFF0F172A),
+                            ? AppColors.primary
+                            : AppColors.inputBackground,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFFFBBF24)
-                              : Colors.white12,
+                              ? AppColors.primary
+                              : AppColors.cardBorder,
                         ),
                       ),
                       child: Text(
                         label,
                         style: TextStyle(
-                          color: isSelected ? Colors.black : Colors.white70,
+                          color: isSelected ? Colors.white : AppColors.textSecondary,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
@@ -98,7 +99,8 @@ class FilterAndSortBar extends StatelessWidget {
               PopupMenuButton<int>(
                 key: const Key('review_count_popup_button'),
                 initialValue: currentReviewCount,
-                color: const Color(0xFF1E293B),
+                color: AppColors.surface,
+                elevation: 4,
                 onSelected: (val) {
                   controller.setMinReviewCount(val);
                   onReviewCountSelected?.call(val);
@@ -111,7 +113,7 @@ class FilterAndSortBar extends StatelessWidget {
                       count == 0
                           ? '💬 Tüm Yorum Sayıları'
                           : '💬 En Az $count+ Yorum',
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppColors.textPrimary),
                     ),
                   );
                 }).toList(),
@@ -122,13 +124,13 @@ class FilterAndSortBar extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: currentReviewCount > 0
-                        ? const Color(0xFF38BDF8).withValues(alpha: 0.2)
-                        : const Color(0xFF0F172A),
+                        ? AppColors.blueLight
+                        : AppColors.inputBackground,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: currentReviewCount > 0
-                          ? const Color(0xFF38BDF8)
-                          : Colors.white24,
+                          ? AppColors.blue
+                          : AppColors.cardBorder,
                     ),
                   ),
                   child: Row(
@@ -136,15 +138,17 @@ class FilterAndSortBar extends StatelessWidget {
                       const Icon(
                         Icons.reviews_rounded,
                         size: 14,
-                        color: Color(0xFF38BDF8),
+                        color: AppColors.blue,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         currentReviewCount == 0
                             ? 'Yorum Sayısı'
                             : '$currentReviewCount+ Yorum',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: currentReviewCount > 0
+                              ? AppColors.blue
+                              : AppColors.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -159,7 +163,8 @@ class FilterAndSortBar extends StatelessWidget {
               PopupMenuButton<SortOption>(
                 key: const Key('sort_option_popup_button'),
                 initialValue: currentSort,
-                color: const Color(0xFF1E293B),
+                color: AppColors.surface,
+                elevation: 4,
                 onSelected: (val) {
                   controller.setSortOption(val);
                   onSortSelected?.call(val);
@@ -170,7 +175,7 @@ class FilterAndSortBar extends StatelessWidget {
                     value: SortOption.distance,
                     child: Text(
                       '📏 En Yakın Mesafe',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: AppColors.textPrimary),
                     ),
                   ),
                   PopupMenuItem(
@@ -178,7 +183,7 @@ class FilterAndSortBar extends StatelessWidget {
                     value: SortOption.rating,
                     child: Text(
                       '⭐ En Yüksek Puan',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: AppColors.textPrimary),
                     ),
                   ),
                   PopupMenuItem(
@@ -186,7 +191,7 @@ class FilterAndSortBar extends StatelessWidget {
                     value: SortOption.reviews,
                     child: Text(
                       '💬 En Çok Yorum Alan',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: AppColors.textPrimary),
                     ),
                   ),
                 ],
@@ -196,23 +201,23 @@ class FilterAndSortBar extends StatelessWidget {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
+                    color: AppColors.inputBackground,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.white24),
+                    border: Border.all(color: AppColors.cardBorder),
                   ),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.sort_rounded,
                         size: 15,
-                        color: Color(0xFFFBBF24),
+                        color: AppColors.primaryDark,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         _formatSortOption(currentSort),
                         key: const Key('active_sort_label'),
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),

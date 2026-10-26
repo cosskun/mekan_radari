@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
 import '../models/location_preset.dart';
+import '../theme/app_theme.dart';
 import 'home_app_bar.dart';
 
 /// Modal bottom sheet allowing users to pick location from popular presets
@@ -29,7 +30,7 @@ class LocationPickerSheet extends StatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -130,14 +131,14 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
               const Text(
                 'Arama Konumunu Belirle',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close, color: Colors.white70),
+                icon: const Icon(Icons.close, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -147,7 +148,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
             width: double.infinity,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
+                backgroundColor: AppColors.green,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
@@ -177,7 +178,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
           // Live Nominatim Address Search
           TextField(
             controller: _searchController,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColors.textPrimary),
             onChanged: _onSearchChanged,
             onSubmitted: (val) {
               _debounceTimer?.cancel();
@@ -185,15 +186,15 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
             },
             decoration: InputDecoration(
               hintText: 'İlçe, semt veya cadde ara (Örn: Üsküdar, Kızılay)...',
-              hintStyle: const TextStyle(color: Colors.white54, fontSize: 13),
-              prefixIcon: const Icon(Icons.search, color: Color(0xFFFBBF24)),
+              hintStyle: const TextStyle(color: AppColors.textDisabled, fontSize: 13),
+              prefixIcon: const Icon(Icons.search, color: AppColors.primary),
               suffixIcon: _isSearching
                   ? const Padding(
                       padding: EdgeInsets.all(12),
                       child: SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
                       ),
                     )
                   : Row(
@@ -203,7 +204,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                           IconButton(
                             icon: const Icon(
                               Icons.clear_rounded,
-                              color: Colors.white54,
+                              color: AppColors.textTertiary,
                               size: 18,
                             ),
                             onPressed: _clearSearch,
@@ -211,7 +212,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                         IconButton(
                           icon: const Icon(
                             Icons.arrow_forward_rounded,
-                            color: Color(0xFFFBBF24),
+                            color: AppColors.primary,
                           ),
                           onPressed: () {
                             _debounceTimer?.cancel();
@@ -221,10 +222,18 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                       ],
                     ),
               filled: true,
-              fillColor: const Color(0xFF0F172A),
+              fillColor: AppColors.inputBackground,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderSide: const BorderSide(color: AppColors.cardBorder),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.cardBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
               ),
             ),
           ),
@@ -233,7 +242,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
             const Text(
               'Arama Sonuçları (Canlı Harita)',
               style: TextStyle(
-                color: Color(0xFFFBBF24),
+                color: AppColors.primaryDark,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
@@ -251,19 +260,19 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(
                       Icons.place_rounded,
-                      color: Color(0xFF38BDF8),
+                      color: AppColors.blue,
                     ),
                     title: Text(
                       item.name,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     subtitle: Text(
                       item.subtitle,
                       style: const TextStyle(
-                        color: Colors.white60,
+                        color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -276,12 +285,12 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                 },
               ),
             ),
-            const Divider(color: Colors.white12),
+            const Divider(color: AppColors.divider),
           ],
           const Text(
             'Popüler Lezzet & Tatlı Merkezleri',
             style: TextStyle(
-              color: Colors.white70,
+              color: AppColors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ),
@@ -298,19 +307,19 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(
                     Icons.location_city_rounded,
-                    color: Color(0xFFFBBF24),
+                    color: AppColors.primaryDark,
                   ),
                   title: Text(
                     loc.name,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   subtitle: Text(
                     loc.subtitle,
                     style: const TextStyle(
-                      color: Colors.white54,
+                      color: AppColors.textTertiary,
                       fontSize: 12,
                     ),
                   ),

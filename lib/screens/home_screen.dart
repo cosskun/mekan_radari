@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
 import '../models/place_model.dart';
+import '../theme/app_theme.dart';
 import '../widgets/category_chips_bar.dart';
 import '../widgets/empty_venues_view.dart';
 import '../widgets/filter_and_sort_bar.dart';
@@ -68,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
       listenable: _controller,
       builder: (context, _) {
         return Scaffold(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: AppColors.background,
           appBar: HomeAppBar(controller: _controller),
           body: Column(
             children: [
@@ -76,7 +77,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF1E293B),
+                  color: AppColors.surface,
+                  boxShadow: AppColors.cardShadow,
                   borderRadius: BorderRadius.vertical(
                     bottom: Radius.circular(22),
                   ),
@@ -110,11 +112,11 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(color: Color(0xFFFBBF24)),
+            const CircularProgressIndicator(color: AppColors.primary),
             const SizedBox(height: 14),
             Text(
               _controller.statusMessage ?? 'Gerçek mekanlar yükleniyor...',
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
+import '../theme/app_theme.dart';
 import 'radius_slider_bar.dart';
 
 /// Information strip displaying count of matching places, active filter summary, and refresh trigger.
@@ -40,7 +41,7 @@ class ResultsSummaryStrip extends StatelessWidget {
                 '$filteredCount mekan bulundu',
                 key: const Key('results_count_text'),
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -51,7 +52,7 @@ class ResultsSummaryStrip extends StatelessWidget {
                   '($radiusLabel içinde • $ratingPart$reviewPart$favPart)',
                   key: const Key('active_filters_summary_text'),
                   style: const TextStyle(
-                    color: Colors.white54,
+                    color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -72,20 +73,20 @@ class ResultsSummaryStrip extends StatelessWidget {
                           height: 14,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Color(0xFF38BDF8),
+                            color: AppColors.blue,
                           ),
                         )
                       else
                         const Icon(
                           Icons.refresh_rounded,
                           size: 16,
-                          color: Color(0xFF38BDF8),
+                          color: AppColors.blue,
                         ),
                       const SizedBox(width: 4),
                       Text(
                         isLoading ? 'Yükleniyor...' : 'Yenile',
                         style: const TextStyle(
-                          color: Color(0xFF38BDF8),
+                          color: AppColors.blue,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),

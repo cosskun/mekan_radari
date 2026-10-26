@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../controllers/places_controller.dart';
+import '../theme/app_theme.dart';
 import 'api_settings_dialog.dart';
 import 'location_picker_sheet.dart';
 
@@ -135,8 +136,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       listenable: controller,
       builder: (context, _) {
         return AppBar(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: AppColors.surface,
           elevation: 0,
+          scrolledUnderElevation: 0,
           titleSpacing: 16,
           title: InkWell(
             onTap: () => _handleLocationTap(context),
@@ -148,12 +150,12 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.18),
+                      color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.radar_rounded,
-                      color: Color(0xFFFBBF24),
+                      color: AppColors.primaryDark,
                       size: 22,
                     ),
                   ),
@@ -165,7 +167,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                         const Text(
                           'Mekan Radarı • Konum Seç',
                           style: TextStyle(
-                            color: Color(0xFFFBBF24),
+                            color: AppColors.primaryDark,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -178,7 +180,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -187,7 +189,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                             const SizedBox(width: 4),
                             const Icon(
                               Icons.keyboard_arrow_down_rounded,
-                              color: Colors.white70,
+                              color: AppColors.textTertiary,
                               size: 18,
                             ),
                           ],
@@ -205,7 +207,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => _handleGpsTap(context),
               icon: const Icon(
                 Icons.my_location_rounded,
-                color: Color(0xFF38BDF8),
+                color: AppColors.blue,
               ),
             ),
             IconButton(
@@ -216,8 +218,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ? Icons.favorite_rounded
                     : Icons.favorite_border_rounded,
                 color: controller.showFavoritesOnly
-                    ? const Color(0xFFEF4444)
-                    : Colors.white70,
+                    ? AppColors.red
+                    : AppColors.textSecondary,
               ),
             ),
             IconButton(
@@ -225,7 +227,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => _handleApiSettingsTap(context),
               icon: const Icon(
                 Icons.vpn_key_rounded,
-                color: Colors.white70,
+                color: AppColors.textSecondary,
               ),
             ),
           ],

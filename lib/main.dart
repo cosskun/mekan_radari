@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,18 +15,7 @@ class MekanRadariApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mekan Radarı',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFF59E0B),
-          brightness: Brightness.dark,
-          primary: const Color(0xFFF59E0B),
-          secondary: const Color(0xFF38BDF8),
-          surface: const Color(0xFF1E293B),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
       home: const HomeScreen(),
     );
   }

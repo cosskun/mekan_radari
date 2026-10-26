@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
+import '../theme/app_theme.dart';
 
 /// Distance radius slider (50m to 3000m) with 6 quick preset chips and auto-fetch trigger.
 class RadiusSliderBar extends StatelessWidget {
@@ -43,8 +44,9 @@ class RadiusSliderBar extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
+            color: AppColors.inputBackground,
             borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.cardBorder),
           ),
           child: Column(
             children: [
@@ -52,14 +54,14 @@ class RadiusSliderBar extends StatelessWidget {
                 children: [
                   const Icon(
                     Icons.social_distance_rounded,
-                    color: Color(0xFF38BDF8),
+                    color: AppColors.blue,
                     size: 18,
                   ),
                   const SizedBox(width: 6),
                   const Text(
                     'Mesafe Yarıçapı: ',
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: AppColors.textSecondary,
                       fontSize: 12.5,
                     ),
                   ),
@@ -67,7 +69,7 @@ class RadiusSliderBar extends StatelessWidget {
                     formatRadius(currentRadius),
                     key: const Key('radius_display_label'),
                     style: const TextStyle(
-                      color: Color(0xFF38BDF8),
+                      color: AppColors.blue,
                       fontWeight: FontWeight.w900,
                       fontSize: 14,
                     ),
@@ -95,14 +97,19 @@ class RadiusSliderBar extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: active
-                                  ? const Color(0xFF38BDF8)
-                                  : Colors.white10,
+                                  ? AppColors.blue
+                                  : AppColors.surface,
                               borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: active
+                                    ? AppColors.blue
+                                    : AppColors.cardBorder,
+                              ),
                             ),
                             child: Text(
                               formatPresetLabel(preset),
                               style: TextStyle(
-                                color: active ? Colors.black : Colors.white70,
+                                color: active ? Colors.white : AppColors.textSecondary,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -116,11 +123,11 @@ class RadiusSliderBar extends StatelessWidget {
               ),
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: const Color(0xFF38BDF8),
-                  inactiveTrackColor: Colors.white12,
-                  thumbColor: const Color(0xFF38BDF8),
+                  activeTrackColor: AppColors.blue,
+                  inactiveTrackColor: AppColors.cardBorder,
+                  thumbColor: AppColors.blue,
                   overlayColor:
-                      const Color(0xFF38BDF8).withValues(alpha: 0.2),
+                      AppColors.blue.withValues(alpha: 0.15),
                   trackHeight: 4,
                 ),
                 child: Slider(

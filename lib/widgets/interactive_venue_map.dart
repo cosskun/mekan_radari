@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../controllers/places_controller.dart';
 import '../models/place_model.dart';
+import '../theme/app_theme.dart';
 
 /// Interactive OpenStreetMap view displaying the user's radar circle and
 /// custom star-rating pill markers for all venues matching active filters.
@@ -177,16 +178,17 @@ class _InteractiveVenueMapState extends State<InteractiveVenueMap> {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF0F172A),
+                                  color: AppColors.surface,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: const Color(0xFFFBBF24),
+                                    color: AppColors.primary,
                                     width: 1.5,
                                   ),
                                   boxShadow: const [
                                     BoxShadow(
-                                      color: Colors.black54,
-                                      blurRadius: 4,
+                                      color: Color(0x33000000),
+                                      blurRadius: 5,
+                                      offset: Offset(0, 2),
                                     ),
                                   ],
                                 ),
@@ -195,14 +197,14 @@ class _InteractiveVenueMapState extends State<InteractiveVenueMap> {
                                   children: [
                                     const Icon(
                                       Icons.star_rounded,
-                                      color: Color(0xFFFBBF24),
+                                      color: AppColors.primaryDark,
                                       size: 13,
                                     ),
                                     const SizedBox(width: 2),
                                     Text(
                                       place.rating.toStringAsFixed(1),
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: AppColors.textPrimary,
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -214,7 +216,7 @@ class _InteractiveVenueMapState extends State<InteractiveVenueMap> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
-                                          color: Colors.white70,
+                                          color: AppColors.textSecondary,
                                           fontSize: 10,
                                         ),
                                       ),
@@ -224,7 +226,7 @@ class _InteractiveVenueMapState extends State<InteractiveVenueMap> {
                               ),
                               const Icon(
                                 Icons.location_on_rounded,
-                                color: Color(0xFFF59E0B),
+                                color: AppColors.primary,
                                 size: 22,
                               ),
                             ],
@@ -247,22 +249,23 @@ class _InteractiveVenueMapState extends State<InteractiveVenueMap> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A).withValues(alpha: 0.92),
+                  color: AppColors.surface.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.white12),
+                  border: Border.all(color: AppColors.cardBorder),
+                  boxShadow: AppColors.elevatedShadow,
                 ),
                 child: const Row(
                   children: [
                     Icon(
                       Icons.touch_app_rounded,
-                      color: Color(0xFFFBBF24),
+                      color: AppColors.primaryDark,
                       size: 20,
                     ),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'İpucu: Haritada istediğiniz sokağa basılı tutarak o noktadaki 50m-500m yarıçaplı mekanları tarayabilirsiniz.',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
+                        style: TextStyle(color: AppColors.textPrimary, fontSize: 12),
                       ),
                     ),
                   ],

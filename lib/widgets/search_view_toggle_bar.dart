@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
+import '../theme/app_theme.dart';
 
 /// Top search bar with text input, clear action, and Map/List view mode toggle.
 class SearchViewToggleBar extends StatefulWidget {
@@ -84,7 +85,7 @@ class _SearchViewToggleBarState extends State<SearchViewToggleBar> {
               child: TextField(
                 key: const Key('search_text_field'),
                 controller: _textController,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
                 onChanged: (val) {
                   widget.controller.setSearchQuery(val);
                   widget.onSearchChanged?.call(val);
@@ -96,12 +97,12 @@ class _SearchViewToggleBarState extends State<SearchViewToggleBar> {
                 decoration: InputDecoration(
                   hintText: widget.hintText,
                   hintStyle: const TextStyle(
-                    color: Colors.white38,
+                    color: AppColors.textDisabled,
                     fontSize: 13,
                   ),
                   prefixIcon: const Icon(
                     Icons.search_rounded,
-                    color: Color(0xFFFBBF24),
+                    color: AppColors.primary,
                     size: 20,
                   ),
                   suffixIcon: query.isNotEmpty || _textController.text.isNotEmpty
@@ -109,7 +110,7 @@ class _SearchViewToggleBarState extends State<SearchViewToggleBar> {
                           key: const Key('search_clear_button'),
                           icon: const Icon(
                             Icons.clear_rounded,
-                            color: Colors.white54,
+                            color: AppColors.textTertiary,
                             size: 18,
                           ),
                           onPressed: () {
@@ -124,10 +125,18 @@ class _SearchViewToggleBarState extends State<SearchViewToggleBar> {
                     horizontal: 14,
                   ),
                   filled: true,
-                  fillColor: const Color(0xFF0F172A),
+                  fillColor: AppColors.inputBackground,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
+                    borderSide: const BorderSide(color: AppColors.cardBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppColors.cardBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
                   ),
                 ),
               ),
@@ -143,8 +152,15 @@ class _SearchViewToggleBarState extends State<SearchViewToggleBar> {
                   vertical: 11,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B),
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(14),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x22F59E0B),
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -152,14 +168,14 @@ class _SearchViewToggleBarState extends State<SearchViewToggleBar> {
                       isMapView
                           ? Icons.view_list_rounded
                           : Icons.map_rounded,
-                      color: Colors.black,
+                      color: Colors.white,
                       size: 20,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       isMapView ? 'Liste' : 'Harita',
                       style: const TextStyle(
-                        color: Colors.black,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       ),

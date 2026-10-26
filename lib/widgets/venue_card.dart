@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/places_controller.dart';
 import '../models/place_model.dart';
+import '../theme/app_theme.dart';
 
 /// Presentation card displaying a single venue with category badge,
 /// walking distance, favorite heart button, star rating pill, menu items,
@@ -65,12 +66,13 @@ class VenueCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
+        boxShadow: AppColors.cardShadow,
         border: Border.all(
           color: place.rating >= 4.5
-              ? const Color(0xFFF59E0B).withValues(alpha: 0.35)
-              : Colors.white10,
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : AppColors.cardBorder,
         ),
       ),
       child: InkWell(
@@ -90,13 +92,13 @@ class VenueCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.16),
+                      color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       place.subCategory,
                       style: const TextStyle(
-                        color: Color(0xFFFBBF24),
+                        color: AppColors.primaryDark,
                         fontSize: 11.5,
                         fontWeight: FontWeight.bold,
                       ),
@@ -109,7 +111,7 @@ class VenueCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF38BDF8).withValues(alpha: 0.16),
+                      color: AppColors.blueLight,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -118,13 +120,13 @@ class VenueCard extends StatelessWidget {
                         const Icon(
                           Icons.directions_walk_rounded,
                           size: 13,
-                          color: Color(0xFF38BDF8),
+                          color: AppColors.blue,
                         ),
                         const SizedBox(width: 3),
                         Text(
                           '${place.formattedDistance} (${place.walkingMinutes} dk)',
                           style: const TextStyle(
-                            color: Color(0xFF38BDF8),
+                            color: AppColors.blue,
                             fontSize: 11.5,
                             fontWeight: FontWeight.bold,
                           ),
@@ -140,8 +142,8 @@ class VenueCard extends StatelessWidget {
                           ? Icons.favorite_rounded
                           : Icons.favorite_border_rounded,
                       color: isFavorite
-                          ? const Color(0xFFEF4444)
-                          : Colors.white54,
+                          ? AppColors.red
+                          : AppColors.textDisabled,
                       size: 22,
                     ),
                   ),
@@ -160,7 +162,7 @@ class VenueCard extends StatelessWidget {
                         Text(
                           place.name,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                           ),
@@ -171,7 +173,7 @@ class VenueCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Colors.white60,
+                            color: AppColors.textSecondary,
                             fontSize: 12.5,
                           ),
                         ),
@@ -186,10 +188,10 @@ class VenueCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
+                      color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: const Color(0xFFFBBF24).withValues(alpha: 0.5),
+                        color: AppColors.primary.withValues(alpha: 0.4),
                       ),
                     ),
                     child: Column(
@@ -199,14 +201,14 @@ class VenueCard extends StatelessWidget {
                           children: [
                             const Icon(
                               Icons.star_rounded,
-                              color: Color(0xFFFBBF24),
+                              color: AppColors.primaryDark,
                               size: 18,
                             ),
                             const SizedBox(width: 3),
                             Text(
                               place.rating.toStringAsFixed(1),
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: AppColors.textPrimary,
                                 fontWeight: FontWeight.w900,
                                 fontSize: 15,
                               ),
@@ -216,7 +218,7 @@ class VenueCard extends StatelessWidget {
                         Text(
                           '${place.reviewCount} yorum',
                           style: const TextStyle(
-                            color: Colors.white54,
+                            color: AppColors.textSecondary,
                             fontSize: 10.5,
                           ),
                         ),
@@ -239,13 +241,14 @@ class VenueCard extends StatelessWidget {
                         vertical: 3.5,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0F172A),
+                        color: AppColors.inputBackground,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.cardBorder),
                       ),
                       child: Text(
                         '🍴 $item',
                         style: const TextStyle(
-                          color: Colors.white70,
+                          color: AppColors.textSecondary,
                           fontSize: 11.5,
                         ),
                       ),
@@ -259,15 +262,16 @@ class VenueCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A).withValues(alpha: 0.7),
+                    color: AppColors.inputBackground,
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Icon(
                         Icons.format_quote_rounded,
-                        color: Color(0xFFFBBF24),
+                        color: AppColors.primaryDark,
                         size: 18,
                       ),
                       const SizedBox(width: 6),
@@ -277,7 +281,7 @@ class VenueCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Colors.white70,
+                            color: AppColors.textSecondary,
                             fontSize: 12,
                             fontStyle: FontStyle.italic,
                           ),
@@ -306,12 +310,12 @@ class VenueCard extends StatelessWidget {
                     icon: const Icon(
                       Icons.open_in_new_rounded,
                       size: 15,
-                      color: Color(0xFF60A5FA),
+                      color: AppColors.blue,
                     ),
                     label: const Text(
                       'Google Yorumlarını Gör',
                       style: TextStyle(
-                        color: Color(0xFF60A5FA),
+                        color: AppColors.blue,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -321,7 +325,7 @@ class VenueCard extends StatelessWidget {
                   const Text(
                     'Detay & Tüm Yorumlar',
                     style: TextStyle(
-                      color: Color(0xFFFBBF24),
+                      color: AppColors.primaryDark,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -330,7 +334,7 @@ class VenueCard extends StatelessWidget {
                   const Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 12,
-                    color: Color(0xFFFBBF24),
+                    color: AppColors.primaryDark,
                   ),
                 ],
               ),

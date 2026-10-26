@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
+import '../theme/app_theme.dart';
 
 /// Configuration dialog for Google Places API Key.
 ///
@@ -63,15 +64,20 @@ class _ApiSettingsDialogState extends State<ApiSettingsDialog> {
         widget.controller.googleApiKey!.isNotEmpty;
 
     return AlertDialog(
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: AppColors.cardBorder),
+      ),
       title: const Row(
         children: [
-          Icon(Icons.cloud_sync_rounded, color: Color(0xFFFBBF24)),
+          Icon(Icons.cloud_sync_rounded, color: AppColors.primary),
           SizedBox(width: 10),
           Expanded(
             child: Text(
               'Veri Kaynağı & API Ayarları',
-              style: TextStyle(color: Colors.white, fontSize: 17),
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 17, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -84,10 +90,10 @@ class _ApiSettingsDialogState extends State<ApiSettingsDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                color: AppColors.greenLight,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.4),
+                  color: AppColors.green.withValues(alpha: 0.4),
                 ),
               ),
               child: const Text(
@@ -95,14 +101,14 @@ class _ApiSettingsDialogState extends State<ApiSettingsDialog> {
                 'Hiçbir API anahtarına ihtiyaç duymadan çevrenizdeki gerçek dünyadaki '
                 'tatlıcıları, kafeleri ve restoranları gerçek koordinat ve metre mesafeleriyle çeker. '
                 'Her karttaki "Google Yorumları" butonuyla da o mekanın gerçek Google sayfasını açabilirsiniz.',
-                style: TextStyle(color: Colors.white, fontSize: 12.5, height: 1.4),
+                style: TextStyle(color: AppColors.textPrimary, fontSize: 12.5, height: 1.4),
               ),
             ),
             const SizedBox(height: 16),
             const Text(
               'İsteğe Bağlı Google Places API (New) Anahtarı:',
               style: TextStyle(
-                color: Colors.white70,
+                color: AppColors.textPrimary,
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
@@ -110,19 +116,19 @@ class _ApiSettingsDialogState extends State<ApiSettingsDialog> {
             const SizedBox(height: 8),
             TextField(
               controller: _keyController,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
               decoration: InputDecoration(
                 hintText:
                     'AIzaSy... (Boş bırakırsanız ücretsiz canlı motor çalışır)',
                 hintStyle:
-                    const TextStyle(color: Colors.white38, fontSize: 12),
+                    const TextStyle(color: AppColors.textDisabled, fontSize: 12),
                 filled: true,
-                fillColor: const Color(0xFF0F172A),
+                fillColor: AppColors.inputBackground,
                 suffixIcon: _keyController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(
                           Icons.clear_rounded,
-                          color: Colors.white54,
+                          color: AppColors.textTertiary,
                           size: 18,
                         ),
                         onPressed: () {
@@ -134,7 +140,15 @@ class _ApiSettingsDialogState extends State<ApiSettingsDialog> {
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
+                  borderSide: const BorderSide(color: AppColors.cardBorder),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppColors.cardBorder),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
                 ),
               ),
               onChanged: (_) => setState(() {}),
@@ -148,20 +162,20 @@ class _ApiSettingsDialogState extends State<ApiSettingsDialog> {
             onPressed: _clearApiKey,
             child: const Text(
               'Anahtarı Temizle',
-              style: TextStyle(color: Color(0xFFEF4444)),
+              style: TextStyle(color: AppColors.red),
             ),
           ),
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text(
             'İptal',
-            style: TextStyle(color: Colors.white60),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFF59E0B),
-            foregroundColor: Colors.black,
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
           ),
           onPressed: _saveApiKey,
           child: const Text(

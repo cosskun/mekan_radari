@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/places_controller.dart';
 import '../models/place_model.dart';
+import '../theme/app_theme.dart';
 
 /// Empty state view presented when no venues match the active filters within
 /// the radar search radius. Features an adaptive radius suggestion button
@@ -42,9 +43,10 @@ class EmptyVenuesView extends StatelessWidget {
               child: Container(
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white12),
+                boxShadow: AppColors.cardShadow,
+                border: Border.all(color: AppColors.cardBorder),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -52,14 +54,14 @@ class EmptyVenuesView extends StatelessWidget {
                   const Icon(
                     Icons.radar_rounded,
                     size: 54,
-                    color: Color(0xFFFBBF24),
+                    color: AppColors.primary,
                   ),
                   const SizedBox(height: 12),
                   Text(
                     '${formatRadius(radiusMeters)} yarıçapında ve ${minRating.toStringAsFixed(1)}+ yıldızda mekan bulunamadı.',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -70,15 +72,15 @@ class EmptyVenuesView extends StatelessWidget {
                       'Ancak kriterlerinize uyan en yakın gerçek mekan "${closestOutside.name}" (${closestOutside.rating} ★) şu an tam ${closestOutside.formattedDistance} mesafede!',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        color: Color(0xFF38BDF8),
+                        color: AppColors.blue,
                         fontSize: 13.5,
                       ),
                     ),
                     const SizedBox(height: 16),
                     FilledButton.icon(
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFFF59E0B),
-                        foregroundColor: Colors.black,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
                       ),
                       onPressed: onExpandRadius ??
                           () => controller.expandRadiusToClosestPlace(),
@@ -92,13 +94,13 @@ class EmptyVenuesView extends StatelessWidget {
                     const Text(
                       'Mesafe yarıçapını biraz artırmayı veya minimum yıldız filtresini esnetmeyi deneyebilirsiniz.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white60, fontSize: 13),
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                     ),
                     const SizedBox(height: 14),
                     FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF38BDF8),
-                        foregroundColor: Colors.black,
+                        backgroundColor: AppColors.blue,
+                        foregroundColor: Colors.white,
                       ),
                       onPressed: onResetFilters ??
                           () {
