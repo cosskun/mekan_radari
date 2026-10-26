@@ -1,4 +1,4 @@
-name: Check Beta Group Testers
+name: Check Builds Detail
 on: workflow_dispatch
 jobs:
   check:
@@ -23,18 +23,13 @@ jobs:
             { algorithm: "ES256", header: { kid: process.env.KEY_ID, typ: "JWT" } }
           );
           async function run() {
-            const res = await fetch("https://api.appstoreconnect.apple.com/v1/betaGroups/2f33955a-c63f-4c30-8c3e-ed30beb17be1/betaTesters", {
+            const res = await fetch("https://api.appstoreconnect.apple.com/v1/builds?filter[app]=6827139713&sort=-uploadedDate&limit=5", {
               headers: { Authorization: "Bearer " + token }
             });
             const data = await res.json();
-            console.log("Group Ben Testers:", JSON.stringify(data, null, 2));
-
-            // Also check app betaTesters
-            const appTRes = await fetch("https://api.appstoreconnect.apple.com/v1/apps/6827139713/betaTesters", {
-              headers: { Authorization: "Bearer " + token }
-            });
-            const appTData = await appTRes.json();
-            console.log("App Beta Testers:", JSON.stringify(appTData, null, 2));
+            for (const b of data.data) {
+              console.log("BUILD:", b.attributes.version, "STATE:", b.attributes.processingState, "ENC:", b.attributes.usesNonExemptEncryption);
+            }
           }
           run().catch(console.error);
           '
