@@ -10,7 +10,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Run Distribute
+      - name: Run Distribute and Invite
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -49,72 +49,47 @@ jobs:
           }
 
           async function main() {
-            console.log("1. Finding app in App Store Connect...");
-            const appsRes = await req("https://api.appstoreconnect.apple.com/v1/apps?filter[bundleId]=com.mekanradari.mekanRadari");
-            if (!appsRes.ok || !appsRes.data.data.length) {
-              console.error("App not found:", appsRes);
-              process.exit(1);
-            }
-            const app = appsRes.data.data[0];
-            const appId = app.id;
-            console.log("Found app:", app.attributes.name, "(ID: " + appId + ")");
+            const appId = "6827139713";
+            const email = "furkanc28@gmail.com";
 
-            console.log("\n2. Finding Beta Groups...");
-            const groupsRes = await req("https://api.appstoreconnect.apple.com/v1/apps/" + appId + "/betaGroups");
-            const groups = groupsRes.data.data || [];
-            console.log("Beta groups found:", groups.map(g => g.attributes.name + " (" + g.id + ")"));
+            console.log("1. Finding tester:", email);
+            const testerRes = await req("https://api.appstoreconnect.apple.com/v1/betaTesters?filter[email]=" + encodeURIComponent(email));
+            const testers = testerRes.data.data || [];
+            console.log("Found testers:", testers.length);
 
-            const targetGroup = groups.find(g => g.attributes.name.toLowerCase() === "ben") || groups[0];
-            if (!targetGroup) {
-              console.error("No beta group found!");
-              process.exit(1);
-            }
-            console.log("Target group:", targetGroup.attributes.name, "(ID: " + targetGroup.id + ")");
+            if (testers.length > 0) {
+              const testerId = testers[0].id;
+              console.log("Tester ID:", testerId);
 
-            console.log("\n3. Checking Builds...");
-            const buildsRes = await req("https://api.appstoreconnect.apple.com/v1/builds?filter[app]=" + appId + "&sort=-uploadedDate&limit=5");
-            const builds = buildsRes.data.data || [];
-            console.log("Total builds found:", builds.length);
-
-            for (const b of builds) {
-              const bId = b.id;
-              const ver = b.attributes.version;
-              const state = b.attributes.processingState;
-              const enc = b.attributes.usesNonExemptEncryption;
-              console.log(`\n-> Build ${bId}: Version=${ver}, ProcessingState=${state}, usesNonExemptEncryption=${enc}`);
-
-              // Set encryption if missing or not false
-              if (enc === null || enc === undefined) {
-                console.log("  Setting usesNonExemptEncryption = false...");
-                const patchRes = await req("https://api.appstoreconnect.apple.com/v1/builds/" + bId, {
-                  method: "PATCH",
-                  body: JSON.stringify({
-                    data: {
-                      type: "builds",
-                      id: bId,
-                      attributes: { usesNonExemptEncryption: false }
-                    }
-                  })
-                });
-                console.log("  Patch encryption result:", patchRes.status, patchRes.ok ? "SUCCESS" : JSON.stringify(patchRes.data));
-              }
-
-              // Add build to group
-              console.log("  Adding build to group " + targetGroup.attributes.name + "...");
-              const linkRes = await req("https://api.appstoreconnect.apple.com/v1/betaGroups/" + targetGroup.id + "/relationships/builds", {
+              // Check if tester has app relationship
+              console.log("2. Linking tester to app if needed...");
+              const linkAppRes = await req("https://api.appstoreconnect.apple.com/v1/betaTesters/" + testerId + "/relationships/apps", {
                 method: "POST",
                 body: JSON.stringify({
-                  data: [{ type: "builds", id: bId }]
+                  data: [{ type: "apps", id: appId }]
                 })
               });
-              console.log("  Add to group result:", linkRes.status, linkRes.ok ? "SUCCESS" : JSON.stringify(linkRes.data));
+              console.log("Link app result:", linkAppRes.status, linkAppRes.ok ? "SUCCESS" : JSON.stringify(linkAppRes.data));
+
+              // Send invitation
+              console.log("3. Triggering Beta Tester Invitation...");
+              const invRes = await req("https://api.appstoreconnect.apple.com/v1/betaTesterInvitations", {
+                method: "POST",
+                body: JSON.stringify({
+                  data: {
+                    type: "betaTesterInvitations",
+                    relationships: {
+                      betaTester: { data: { type: "betaTesters", id: testerId } },
+                      app: { data: { type: "apps", id: appId } }
+                    }
+                  }
+                })
+              });
+              console.log("Invitation result:", invRes.status, invRes.ok ? "INVITATION SENT!" : JSON.stringify(invRes.data));
             }
 
-            console.log("\nAll build processing and group distribution tasks completed!");
+            console.log("All done!");
           }
 
-          main().catch(err => {
-            console.error("Error:", err);
-            process.exit(1);
-          });
+          main().catch(console.error);
           '
