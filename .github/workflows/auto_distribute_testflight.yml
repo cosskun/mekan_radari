@@ -1,16 +1,13 @@
-name: Auto Distribute TestFlight
-on:
-  workflow_dispatch:
-
+name: Check Beta Group Testers
+on: workflow_dispatch
 jobs:
-  distribute:
+  check:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
         uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Run Distribute and Invite
+        with: { node-version: 20 }
+      - name: Check
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -19,77 +16,25 @@ jobs:
           npm install jsonwebtoken
           node -e '
           const jwt = require("jsonwebtoken");
-          const keyId = process.env.KEY_ID;
-          const issuerId = process.env.ISSUER_ID;
-          const privateKey = process.env.PRIVATE_KEY;
+          const now = Math.floor(Date.now() / 1000);
+          const token = jwt.sign(
+            { iss: process.env.ISSUER_ID, iat: now, exp: now + 1200, aud: "appstoreconnect-v1" },
+            process.env.PRIVATE_KEY,
+            { algorithm: "ES256", header: { kid: process.env.KEY_ID, typ: "JWT" } }
+          );
+          async function run() {
+            const res = await fetch("https://api.appstoreconnect.apple.com/v1/betaGroups/2f33955a-c63f-4c30-8c3e-ed30beb17be1/betaTesters", {
+              headers: { Authorization: "Bearer " + token }
+            });
+            const data = await res.json();
+            console.log("Group Ben Testers:", JSON.stringify(data, null, 2));
 
-          function getToken() {
-            const now = Math.floor(Date.now() / 1000);
-            return jwt.sign(
-              { iss: issuerId, iat: now, exp: now + 1200, aud: "appstoreconnect-v1" },
-              privateKey,
-              { algorithm: "ES256", header: { kid: keyId, typ: "JWT" } }
-            );
+            // Also check app betaTesters
+            const appTRes = await fetch("https://api.appstoreconnect.apple.com/v1/apps/6827139713/betaTesters", {
+              headers: { Authorization: "Bearer " + token }
+            });
+            const appTData = await appTRes.json();
+            console.log("App Beta Testers:", JSON.stringify(appTData, null, 2));
           }
-
-          async function req(url, options = {}) {
-            const token = getToken();
-            const headers = Object.assign({
-              "Authorization": "Bearer " + token,
-              "Accept": "application/json",
-              "Content-Type": "application/json"
-            }, options.headers || {});
-            const res = await fetch(url, Object.assign({}, options, { headers }));
-            const text = await res.text();
-            try {
-              return { status: res.status, ok: res.ok, data: JSON.parse(text) };
-            } catch {
-              return { status: res.status, ok: res.ok, text };
-            }
-          }
-
-          async function main() {
-            const appId = "6827139713";
-            const email = "furkanc28@gmail.com";
-
-            console.log("1. Finding tester:", email);
-            const testerRes = await req("https://api.appstoreconnect.apple.com/v1/betaTesters?filter[email]=" + encodeURIComponent(email));
-            const testers = testerRes.data.data || [];
-            console.log("Found testers:", testers.length);
-
-            if (testers.length > 0) {
-              const testerId = testers[0].id;
-              console.log("Tester ID:", testerId);
-
-              // Check if tester has app relationship
-              console.log("2. Linking tester to app if needed...");
-              const linkAppRes = await req("https://api.appstoreconnect.apple.com/v1/betaTesters/" + testerId + "/relationships/apps", {
-                method: "POST",
-                body: JSON.stringify({
-                  data: [{ type: "apps", id: appId }]
-                })
-              });
-              console.log("Link app result:", linkAppRes.status, linkAppRes.ok ? "SUCCESS" : JSON.stringify(linkAppRes.data));
-
-              // Send invitation
-              console.log("3. Triggering Beta Tester Invitation...");
-              const invRes = await req("https://api.appstoreconnect.apple.com/v1/betaTesterInvitations", {
-                method: "POST",
-                body: JSON.stringify({
-                  data: {
-                    type: "betaTesterInvitations",
-                    relationships: {
-                      betaTester: { data: { type: "betaTesters", id: testerId } },
-                      app: { data: { type: "apps", id: appId } }
-                    }
-                  }
-                })
-              });
-              console.log("Invitation result:", invRes.status, invRes.ok ? "INVITATION SENT!" : JSON.stringify(invRes.data));
-            }
-
-            console.log("All done!");
-          }
-
-          main().catch(console.error);
+          run().catch(console.error);
           '
