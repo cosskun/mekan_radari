@@ -1,0 +1,184 @@
+require 'jwt'
+require 'net/http'
+require 'uri'
+require 'json'
+require 'openssl'
+
+default_platform(:ios)
+
+def get_asc_token(key_id, issuer_id, private_key_pem)
+  header = { alg: "ES256", kid: key_id, typ: "JWT" }
+  payload = { iss: issuer_id, exp: Time.now.to_i + (20 * 60), aud: "appstoreconnect-v1" }
+  ec_key = OpenSSL::PKey::EC.new(private_key_pem)
+  JWT.encode(payload, ec_key, 'ES256', header)
+end
+
+def revoke_old_distribution_certs(key_id, issuer_id, private_key_pem)
+  token = get_asc_token(key_id, issuer_id, private_key_pem)
+  ["DISTRIBUTION", "IOS_DISTRIBUTION"].each do |cert_type|
+    uri = URI("https://api.appstoreconnect.apple.com/v1/certificates?filter[certificateType]=#{cert_type}")
+    req = Net::HTTP::Get.new(uri)
+    req["Authorization"] = "Bearer #{token}"
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
+    if res.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(res.body)
+      certs = data["data"] || []
+      certs.each do |c|
+        c_id = c["id"]
+        del_uri = URI("https://api.appstoreconnect.apple.com/v1/certificates/#{c_id}")
+        del_req = Net::HTTP::Delete.new(del_uri)
+        del_req["Authorization"] = "Bearer #{token}"
+        Net::HTTP.start(del_uri.hostname, del_uri.port, use_ssl: true) { |http| http.request(del_req) }
+        UI.message("Revoked old distribution cert: #{c_id}")
+      end
+    end
+  end
+end
+
+def ensure_bundle_id_exists(key_id, issuer_id, private_key_pem, bundle_id, app_name)
+  token = get_asc_token(key_id, issuer_id, private_key_pem)
+
+  # List existing apps in ASC
+  apps_uri = URI("https://api.appstoreconnect.apple.com/v1/apps")
+  apps_req = Net::HTTP::Get.new(apps_uri)
+  apps_req["Authorization"] = "Bearer #{token}"
+  apps_res = Net::HTTP.start(apps_uri.hostname, apps_uri.port, use_ssl: true) { |http| http.request(apps_req) }
+  if apps_res.is_a?(Net::HTTPSuccess)
+    apps_data = JSON.parse(apps_res.body)
+    existing_apps = (apps_data["data"] || []).map { |a| "#{a['attributes']['name']} (#{a['attributes']['bundleId']})" }
+    UI.message("Existing Apps in App Store Connect: #{existing_apps.inspect}")
+  end
+
+  # Register Bundle ID if not exists
+  uri = URI("https://api.appstoreconnect.apple.com/v1/bundleIds?filter[identifier]=#{bundle_id}")
+  req = Net::HTTP::Get.new(uri)
+  req["Authorization"] = "Bearer #{token}"
+  res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
+  
+  bundle_id_resource_id = nil
+  if res.is_a?(Net::HTTPSuccess)
+    data = JSON.parse(res.body)
+    if data["data"] && data["data"].length > 0
+      bundle_id_resource_id = data["data"][0]["id"]
+      UI.message("Bundle ID already registered: #{bundle_id} (ID: #{bundle_id_resource_id})")
+    end
+  end
+
+  unless bundle_id_resource_id
+    post_uri = URI("https://api.appstoreconnect.apple.com/v1/bundleIds")
+    post_req = Net::HTTP::Post.new(post_uri)
+    post_req["Authorization"] = "Bearer #{token}"
+    post_req["Content-Type"] = "application/json"
+    post_req.body = JSON.dump({
+      data: {
+        type: "bundleIds",
+        attributes: {
+          identifier: bundle_id,
+          name: app_name[0...25],
+          platform: "UNIVERSAL"
+        }
+      }
+    })
+    post_res = Net::HTTP.start(post_uri.hostname, post_uri.port, use_ssl: true) { |http| http.request(post_req) }
+    if post_res.is_a?(Net::HTTPSuccess) || post_res.code == "201"
+      post_data = JSON.parse(post_res.body)
+      bundle_id_resource_id = post_data["data"]["id"]
+      UI.message("Successfully registered Bundle ID: #{bundle_id} (ID: #{bundle_id_resource_id})")
+    else
+      UI.important("Bundle ID registration response: #{post_res.code} - #{post_res.body}")
+    end
+  end
+end
+
+platform :ios do
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_PRIVATE_KEY"],
+      is_key_content_base64: false
+    )
+
+    keychain_name = "ci_keychain"
+    keychain_password = "ci_password"
+
+    create_keychain(
+      name: keychain_name,
+      password: keychain_password,
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: false
+    )
+
+    kc_path_db = File.expand_path("~/Library/Keychains/#{keychain_name}-db")
+    kc_path_raw = File.expand_path("~/Library/Keychains/#{keychain_name}")
+    kc_path = File.exist?(kc_path_db) ? kc_path_db : kc_path_raw
+
+    begin
+      get_certificates(
+        keychain_path: kc_path,
+        keychain_password: keychain_password
+      )
+    rescue => e
+      UI.important("Certificate limit reached or invalid certs. Cleaning old distribution certs and retrying...")
+      revoke_old_distribution_certs(
+        ENV["APP_STORE_CONNECT_KEY_ID"],
+        ENV["APP_STORE_CONNECT_ISSUER_ID"],
+        ENV["APP_STORE_CONNECT_PRIVATE_KEY"]
+      )
+      get_certificates(
+        keychain_path: kc_path,
+        keychain_password: keychain_password,
+        force: true
+      )
+    end
+
+    ensure_bundle_id_exists(
+      ENV["APP_STORE_CONNECT_KEY_ID"],
+      ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      ENV["APP_STORE_CONNECT_PRIVATE_KEY"],
+      "com.mekanradari.mekanRadari",
+      "Mekan Radari"
+    )
+
+    get_provisioning_profile(
+      app_identifier: "com.mekanradari.mekanRadari"
+    )
+
+    profile_name = Actions.lane_context[SharedValues::SIGH_NAME]
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: "BHYTLHA722",
+      bundle_identifier: "com.mekanradari.mekanRadari",
+      profile_name: profile_name,
+      code_sign_identity: "Apple Distribution"
+    )
+
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: {
+        method: "app-store",
+        export_team_id: "BHYTLHA722",
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "com.mekanradari.mekanRadari" => profile_name
+        }
+      },
+      xcargs: "DEVELOPMENT_TEAM=BHYTLHA722",
+      output_directory: "./build_fastlane",
+      output_name: "MekanRadari.ipa"
+    )
+
+    upload_to_testflight(
+      ipa: "./build_fastlane/MekanRadari.ipa",
+      skip_waiting_for_build_processing: true
+    )
+  end
+end
