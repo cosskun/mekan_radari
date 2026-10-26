@@ -14,8 +14,11 @@ import '../widgets/search_view_toggle_bar.dart';
 import '../widgets/venue_card.dart';
 import 'place_detail_sheet.dart';
 
-/// Slim coordinator screen (~125 lines) subscribing to [PlacesController]
-/// via [ListenableBuilder] and assembling decomposed modular sub-widgets.
+/// Consumer-grade coordinator screen designed for everyday users.
+///
+/// Features a clear, welcoming Home experience allowing users to configure
+/// search criteria (categories, radius, filters), launch search, or directly view
+/// venues on the interactive map.
 class HomeScreen extends StatefulWidget {
   final PlacesController? controller;
 
@@ -73,25 +76,120 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: HomeAppBar(controller: _controller),
           body: Column(
             children: [
-              // Search, Filters & Controls Header
+              // Search, Filters & Action Controls Header
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
                 decoration: const BoxDecoration(
                   color: AppColors.surface,
                   boxShadow: AppColors.cardShadow,
                   borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(22),
+                    bottom: Radius.circular(20),
                   ),
                 ),
                 child: Column(
                   children: [
+                    // Search & View Mode Toggle Bar
                     SearchViewToggleBar(controller: _controller),
                     const SizedBox(height: 8),
+
+                    // Category Chips Bar
                     CategoryChipsBar(controller: _controller),
                     const SizedBox(height: 6),
+
+                    // Distance Radius Bar (Fixed: 500m no longer overflows)
                     RadiusSliderBar(controller: _controller),
                     const SizedBox(height: 6),
+
+                    // Filter & Sort Bar
                     FilterAndSortBar(controller: _controller),
+                    const SizedBox(height: 8),
+
+                    // Direct Action Buttons: "Mekanları Ara" & "Haritada Gör"
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            key: const Key('home_search_action_button'),
+                            onTap: () {
+                              _controller.loadPlaces();
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 9),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryLight,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.search_rounded,
+                                    size: 16,
+                                    color: AppColors.primaryDark,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _controller.filteredPlaces.isEmpty
+                                        ? 'Mekanları Ara'
+                                        : 'Mekanları Listele (${_controller.filteredPlaces.length})',
+                                    style: const TextStyle(
+                                      color: AppColors.primaryDark,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: InkWell(
+                            key: const Key('home_map_action_button'),
+                            onTap: () {
+                              if (!_controller.isMapView) {
+                                _controller.toggleViewMode();
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 9),
+                              decoration: BoxDecoration(
+                                color: AppColors.blueLight,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: AppColors.blue.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.map_rounded,
+                                    size: 16,
+                                    color: AppColors.blue,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Haritada Gör',
+                                    style: TextStyle(
+                                      color: AppColors.blue,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -115,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const CircularProgressIndicator(color: AppColors.primary),
             const SizedBox(height: 14),
             Text(
-              _controller.statusMessage ?? 'Gerçek mekanlar yükleniyor...',
+              _controller.statusMessage ?? 'Çevredeki gerçek mekanlar taranıyor...',
               style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ],

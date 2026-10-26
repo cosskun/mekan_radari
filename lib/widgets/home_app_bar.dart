@@ -17,6 +17,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onFavoritesTap;
   final VoidCallback? onApiSettingsTap;
   final void Function(double lat, double lon)? onLocationChanged;
+  final bool showApiSettings;
 
   const HomeAppBar({
     super.key,
@@ -26,6 +27,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onFavoritesTap,
     this.onApiSettingsTap,
     this.onLocationChanged,
+    this.showApiSettings = false,
   });
 
   @override
@@ -222,14 +224,15 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     : AppColors.textSecondary,
               ),
             ),
-            IconButton(
-              tooltip: 'Veri Kaynağı Ayarları',
-              onPressed: () => _handleApiSettingsTap(context),
-              icon: const Icon(
-                Icons.vpn_key_rounded,
-                color: AppColors.textSecondary,
+            if (showApiSettings || onApiSettingsTap != null)
+              IconButton(
+                tooltip: 'Veri Kaynağı Ayarları',
+                onPressed: () => _handleApiSettingsTap(context),
+                icon: const Icon(
+                  Icons.vpn_key_rounded,
+                  color: AppColors.textSecondary,
+                ),
               ),
-            ),
           ],
         );
       },

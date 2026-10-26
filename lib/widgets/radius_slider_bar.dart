@@ -42,44 +42,63 @@ class RadiusSliderBar extends StatelessWidget {
         final currentRadius = controller.radiusMeters.clamp(50.0, 3000.0);
 
         return Container(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
           decoration: BoxDecoration(
             color: AppColors.inputBackground,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: AppColors.cardBorder),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   const Icon(
-                    Icons.social_distance_rounded,
+                    Icons.radar_rounded,
                     color: AppColors.blue,
                     size: 18,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   const Text(
-                    'Mesafe Yarıçapı: ',
+                    'Mesafe Yarıçapı',
                     style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12.5,
-                    ),
-                  ),
-                  Text(
-                    formatRadius(currentRadius),
-                    key: const Key('radius_display_label'),
-                    style: const TextStyle(
-                      color: AppColors.blue,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const Spacer(),
-                  ...presets.map(
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.blueLight,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.blue.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Text(
+                      formatRadius(currentRadius),
+                      key: const Key('radius_display_label'),
+                      style: const TextStyle(
+                        color: AppColors.blue,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  children: presets.map(
                     (preset) {
                       final active = (currentRadius - preset).abs() < 15;
                       return Padding(
-                        padding: const EdgeInsets.only(left: 4),
+                        padding: const EdgeInsets.only(right: 6),
                         child: InkWell(
                           key: ValueKey('radius_preset_${preset.toInt()}'),
                           onTap: () {
@@ -89,38 +108,48 @@ class RadiusSliderBar extends StatelessWidget {
                             }
                             onRadiusPresetTapped?.call(preset);
                           },
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(8),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 3,
+                              horizontal: 10,
+                              vertical: 5,
                             ),
                             decoration: BoxDecoration(
                               color: active
                                   ? AppColors.blue
                                   : AppColors.surface,
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: active
                                     ? AppColors.blue
                                     : AppColors.cardBorder,
                               ),
+                              boxShadow: active
+                                  ? [
+                                      BoxShadow(
+                                        color: AppColors.blue.withValues(alpha: 0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
                             ),
                             child: Text(
                               formatPresetLabel(preset),
                               style: TextStyle(
                                 color: active ? Colors.white : AppColors.textSecondary,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 11.5,
+                                fontWeight: active ? FontWeight.bold : FontWeight.w600,
                               ),
                             ),
                           ),
                         ),
                       );
                     },
-                  ),
-                ],
+                  ).toList(),
+                ),
               ),
+              const SizedBox(height: 4),
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   activeTrackColor: AppColors.blue,
