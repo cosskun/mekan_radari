@@ -1,0 +1,120 @@
+name: Auto Distribute TestFlight
+on:
+  workflow_dispatch:
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run Distribute
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          npm install jsonwebtoken
+          node -e '
+          const jwt = require("jsonwebtoken");
+          const keyId = process.env.KEY_ID;
+          const issuerId = process.env.ISSUER_ID;
+          const privateKey = process.env.PRIVATE_KEY;
+
+          function getToken() {
+            const now = Math.floor(Date.now() / 1000);
+            return jwt.sign(
+              { iss: issuerId, iat: now, exp: now + 1200, aud: "appstoreconnect-v1" },
+              privateKey,
+              { algorithm: "ES256", header: { kid: keyId, typ: "JWT" } }
+            );
+          }
+
+          async function req(url, options = {}) {
+            const token = getToken();
+            const headers = Object.assign({
+              "Authorization": "Bearer " + token,
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            }, options.headers || {});
+            const res = await fetch(url, Object.assign({}, options, { headers }));
+            const text = await res.text();
+            try {
+              return { status: res.status, ok: res.ok, data: JSON.parse(text) };
+            } catch {
+              return { status: res.status, ok: res.ok, text };
+            }
+          }
+
+          async function main() {
+            console.log("1. Finding app in App Store Connect...");
+            const appsRes = await req("https://api.appstoreconnect.apple.com/v1/apps?filter[bundleId]=com.mekanradari.mekanRadari");
+            if (!appsRes.ok || !appsRes.data.data.length) {
+              console.error("App not found:", appsRes);
+              process.exit(1);
+            }
+            const app = appsRes.data.data[0];
+            const appId = app.id;
+            console.log("Found app:", app.attributes.name, "(ID: " + appId + ")");
+
+            console.log("\n2. Finding Beta Groups...");
+            const groupsRes = await req("https://api.appstoreconnect.apple.com/v1/apps/" + appId + "/betaGroups");
+            const groups = groupsRes.data.data || [];
+            console.log("Beta groups found:", groups.map(g => g.attributes.name + " (" + g.id + ")"));
+
+            const targetGroup = groups.find(g => g.attributes.name.toLowerCase() === "ben") || groups[0];
+            if (!targetGroup) {
+              console.error("No beta group found!");
+              process.exit(1);
+            }
+            console.log("Target group:", targetGroup.attributes.name, "(ID: " + targetGroup.id + ")");
+
+            console.log("\n3. Checking Builds...");
+            const buildsRes = await req("https://api.appstoreconnect.apple.com/v1/builds?filter[app]=" + appId + "&sort=-uploadedDate&limit=5");
+            const builds = buildsRes.data.data || [];
+            console.log("Total builds found:", builds.length);
+
+            for (const b of builds) {
+              const bId = b.id;
+              const ver = b.attributes.version;
+              const state = b.attributes.processingState;
+              const enc = b.attributes.usesNonExemptEncryption;
+              console.log(`\n-> Build ${bId}: Version=${ver}, ProcessingState=${state}, usesNonExemptEncryption=${enc}`);
+
+              // Set encryption if missing or not false
+              if (enc === null || enc === undefined) {
+                console.log("  Setting usesNonExemptEncryption = false...");
+                const patchRes = await req("https://api.appstoreconnect.apple.com/v1/builds/" + bId, {
+                  method: "PATCH",
+                  body: JSON.stringify({
+                    data: {
+                      type: "builds",
+                      id: bId,
+                      attributes: { usesNonExemptEncryption: false }
+                    }
+                  })
+                });
+                console.log("  Patch encryption result:", patchRes.status, patchRes.ok ? "SUCCESS" : JSON.stringify(patchRes.data));
+              }
+
+              // Add build to group
+              console.log("  Adding build to group " + targetGroup.attributes.name + "...");
+              const linkRes = await req("https://api.appstoreconnect.apple.com/v1/betaGroups/" + targetGroup.id + "/relationships/builds", {
+                method: "POST",
+                body: JSON.stringify({
+                  data: [{ type: "builds", id: bId }]
+                })
+              });
+              console.log("  Add to group result:", linkRes.status, linkRes.ok ? "SUCCESS" : JSON.stringify(linkRes.data));
+            }
+
+            console.log("\nAll build processing and group distribution tasks completed!");
+          }
+
+          main().catch(err => {
+            console.error("Error:", err);
+            process.exit(1);
+          });
+          '
