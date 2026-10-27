@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../controllers/places_controller.dart';
+import '../models/location_preset.dart';
 import '../models/place_model.dart';
 import '../theme/app_theme.dart';
 import '../widgets/category_chips_bar.dart';
@@ -42,6 +44,46 @@ class _HomeScreenState extends State<HomeScreen> {
       _isInternalController = true;
     }
     _controller.init();
+    if (_isInternalController) {
+      _autoDetectLocationOnStartup();
+    }
+  }
+
+  /// Automatically requests and detects the device's real GPS coordinates on startup.
+  /// Sets current city/province and nearby places around the user without user intervention.
+  Future<void> _autoDetectLocationOnStartup() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        final pos = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 6),
+          ),
+        );
+
+        if (!mounted) return;
+        final province = LocationPreset.detectProvince(pos.latitude, pos.longitude);
+        final label =
+            'Mevcut Konumum • $province (${pos.latitude.toStringAsFixed(3)}, ${pos.longitude.toStringAsFixed(3)})';
+
+        await _controller.setLocation(
+          lat: pos.latitude,
+          lon: pos.longitude,
+          label: label,
+        );
+      }
+    } catch (_) {
+      // Graceful fallback to initial coordinates if location is unavailable or denied
+    }
   }
 
   @override

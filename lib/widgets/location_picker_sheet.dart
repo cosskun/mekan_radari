@@ -51,6 +51,16 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
   Timer? _debounceTimer;
   List<LocationPreset> _searchResults = const [];
   bool _isSearching = false;
+  late String _selectedProvince;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedProvince = LocationPreset.detectProvince(
+      widget.controller.centerLat,
+      widget.controller.centerLon,
+    );
+  }
 
   @override
   void dispose() {
@@ -287,47 +297,122 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
             ),
             const Divider(color: AppColors.divider),
           ],
-          const Text(
-            'Popüler Lezzet & Tatlı Merkezleri',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              const Text(
+                'Popüler Lezzet & Tatlı Merkezleri',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              PopupMenuButton<String>(
+                initialValue: _selectedProvince,
+                tooltip: 'Şehir Değiştir',
+                onSelected: (prov) {
+                  setState(() {
+                    _selectedProvince = prov;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.location_on_rounded,
+                        size: 13,
+                        color: AppColors.primaryDark,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _selectedProvince,
+                        style: const TextStyle(
+                          color: AppColors.primaryDark,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_drop_down_rounded,
+                        size: 16,
+                        color: AppColors.primaryDark,
+                      ),
+                    ],
+                  ),
+                ),
+                itemBuilder: (ctx) => LocationPreset.availableProvinces.map((prov) {
+                  final isSelected = prov == _selectedProvince;
+                  return PopupMenuItem<String>(
+                    value: prov,
+                    child: Row(
+                      children: [
+                        Text(
+                          prov,
+                          style: TextStyle(
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                          ),
+                        ),
+                        if (isSelected) ...[
+                          const Spacer(),
+                          const Icon(Icons.check_rounded, size: 16, color: AppColors.primary),
+                        ],
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: LocationPreset.popularLocations.length,
-              itemBuilder: (_, index) {
-                final loc = LocationPreset.popularLocations[index];
-                return ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(
-                    Icons.location_city_rounded,
-                    color: AppColors.primaryDark,
-                  ),
-                  title: Text(
-                    loc.name,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  subtitle: Text(
-                    loc.subtitle,
-                    style: const TextStyle(
-                      color: AppColors.textTertiary,
-                      fontSize: 12,
-                    ),
-                  ),
-                  onTap: () => _selectLocation(
-                    lat: loc.latitude,
-                    lon: loc.longitude,
-                    label: loc.name,
-                  ),
+            child: Builder(
+              builder: (context) {
+                final presets = LocationPreset.popularLocationsByProvince[_selectedProvince] ??
+                    LocationPreset.popularLocations;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: presets.length,
+                  itemBuilder: (_, index) {
+                    final loc = presets[index];
+                    return ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(
+                        Icons.location_city_rounded,
+                        color: AppColors.primaryDark,
+                      ),
+                      title: Text(
+                        loc.name,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        loc.subtitle,
+                        style: const TextStyle(
+                          color: AppColors.textTertiary,
+                          fontSize: 12,
+                        ),
+                      ),
+                      onTap: () => _selectLocation(
+                        lat: loc.latitude,
+                        lon: loc.longitude,
+                        label: loc.name,
+                      ),
+                    );
+                  },
                 );
               },
             ),

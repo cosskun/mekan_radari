@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../controllers/places_controller.dart';
+import '../models/location_preset.dart';
 import '../theme/app_theme.dart';
 import 'api_settings_dialog.dart';
 import 'location_picker_sheet.dart';
@@ -80,8 +81,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       );
 
+      final province = LocationPreset.detectProvince(pos.latitude, pos.longitude);
       final label =
-          'GPS Konumum (${pos.latitude.toStringAsFixed(4)}, ${pos.longitude.toStringAsFixed(4)})';
+          'GPS • $province (${pos.latitude.toStringAsFixed(4)}, ${pos.longitude.toStringAsFixed(4)})';
 
       await controller.setLocation(
         lat: pos.latitude,
