@@ -340,12 +340,14 @@ class PlacesController extends ChangeNotifier {
 
   // --- Lifecycle & Action Methods ---
 
-  /// Initializes persisted state (favorites, user reviews, API key) from storage,
-  /// then loads places for the initial location.
-  Future<void> init() async {
-    _isLoading = true;
-    _statusMessage = 'Ayarlar ve favoriler yükleniyor...';
-    notifyListeners();
+  /// Initializes persisted state (favorites, user reviews, API key) from storage.
+  /// If [autoLoadPlaces] is true, also triggers [loadPlaces] for the current location.
+  Future<void> init({bool autoLoadPlaces = true}) async {
+    if (autoLoadPlaces) {
+      _isLoading = true;
+      _statusMessage = 'Ayarlar ve favoriler yükleniyor...';
+      notifyListeners();
+    }
 
     try {
       final favs = await _storageRepository.loadFavoriteIds();
@@ -361,7 +363,11 @@ class PlacesController extends ChangeNotifier {
       // Graceful fallback to default empty states if storage read fails
     }
 
-    await loadPlaces();
+    if (autoLoadPlaces) {
+      await loadPlaces();
+    } else {
+      notifyListeners();
+    }
   }
 
   @override

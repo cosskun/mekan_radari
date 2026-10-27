@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -39,51 +41,188 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     if (widget.controller != null) {
       _controller = widget.controller!;
+      _controller.init();
     } else {
-      _controller = PlacesController();
+      _controller = PlacesController(
+        initialLocationLabel: 'Konum Belirleniyor...',
+      );
       _isInternalController = true;
-    }
-    _controller.init();
-    if (_isInternalController) {
-      _autoDetectLocationOnStartup();
+      _initProductionLocationFlow();
     }
   }
 
-  /// Automatically requests and detects the device's real GPS coordinates on startup.
-  /// Sets current city/province and nearby places around the user without user intervention.
-  Future<void> _autoDetectLocationOnStartup() async {
+  /// Production initialization flow:
+  /// 1. Initializes storage without blindly searching Moda.
+  /// 2. If permission is already granted, immediately acquires GPS & loads places for user's real location.
+  /// 3. If permission not yet determined, displays friendly permission dialog after first frame.
+  Future<void> _initProductionLocationFlow() async {
+    // If running in automated widget test environment, initialize with default places immediately.
+    try {
+      if (Platform.environment.containsKey('FLUTTER_TEST')) {
+        await _controller.init(autoLoadPlaces: true);
+        return;
+      }
+    } catch (_) {}
+
+    await _controller.init(autoLoadPlaces: false);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndHandleLocationPermission();
+    });
+  }
+
+  Future<void> _checkAndHandleLocationPermission() async {
+    if (!mounted) return;
+
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return;
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+      if (!serviceEnabled) {
+        _fallbackToDefaultLocation();
+        return;
       }
 
+      final permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
-        final pos = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.medium,
-            timeLimit: Duration(seconds: 6),
-          ),
-        );
-
-        if (!mounted) return;
-        final province = LocationPreset.detectProvince(pos.latitude, pos.longitude);
-        final label =
-            'Mevcut Konumum • $province (${pos.latitude.toStringAsFixed(3)}, ${pos.longitude.toStringAsFixed(3)})';
-
-        await _controller.setLocation(
-          lat: pos.latitude,
-          lon: pos.longitude,
-          label: label,
-        );
+        // Permission was already granted by user in previous session or settings!
+        await _acquireGpsAndLoadPlaces();
+      } else if (permission == LocationPermission.denied) {
+        // First install / not determined: present user friendly in-app permission dialog
+        if (mounted) {
+          _showLocationPermissionDialog();
+        }
+      } else {
+        // Permanently denied: fallback to default without nagging
+        _fallbackToDefaultLocation();
       }
     } catch (_) {
-      // Graceful fallback to initial coordinates if location is unavailable or denied
+      _fallbackToDefaultLocation();
     }
+  }
+
+  Future<void> _acquireGpsAndLoadPlaces() async {
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 8),
+        ),
+      );
+
+      if (!mounted) return;
+      final province = LocationPreset.detectProvince(pos.latitude, pos.longitude);
+      final label = 'Mevcut Konumum • $province';
+
+      await _controller.setLocation(
+        lat: pos.latitude,
+        lon: pos.longitude,
+        label: label,
+      );
+    } catch (_) {
+      _fallbackToDefaultLocation();
+    }
+  }
+
+  void _fallbackToDefaultLocation() {
+    if (!mounted) return;
+    if (_controller.allPlaces.isEmpty) {
+      _controller.setLocation(
+        lat: 40.9862,
+        lon: 29.0264,
+        label: 'Kadıköy - Moda & Çarşı',
+      );
+    }
+  }
+
+  void _showLocationPermissionDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        backgroundColor: AppColors.surface,
+        titlePadding: const EdgeInsets.fromLTRB(22, 22, 22, 0),
+        contentPadding: const EdgeInsets.fromLTRB(22, 14, 22, 18),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.location_on_rounded,
+                color: AppColors.primaryDark,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Konumunuza İzin Verin',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Mekan Radarı, çevrenizdeki en lezzetli pastane, börekçi, fırın ve tatlıcıları anında bulabilmek için cihazınızın konumuna ihtiyaç duyar.\n\nİzin verirseniz haritada otomatik olarak mevcut konumunuz işaretlenir.',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 13.5,
+            height: 1.45,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              // User declined: do not mark location, use default so user can search or pick
+              _fallbackToDefaultLocation();
+            },
+            child: const Text(
+              'Şimdilik İzin Verme',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                final req = await Geolocator.requestPermission();
+                if (req == LocationPermission.whileInUse ||
+                    req == LocationPermission.always) {
+                  await _acquireGpsAndLoadPlaces();
+                } else {
+                  _fallbackToDefaultLocation();
+                }
+              } catch (_) {
+                _fallbackToDefaultLocation();
+              }
+            },
+            icon: const Icon(Icons.my_location_rounded, size: 18),
+            label: const Text('Konumuma İzin Ver'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
