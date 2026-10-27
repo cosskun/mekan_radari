@@ -49,4 +49,4 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           file: build/app/outputs/flutter-apk/app-release.apk
           testers: furkanc28@gmail.com, rumeysa1166metin@gmail.com, mtn.rumeysa@gmail.com
-          releaseNotes: "Mekan Radari v1.0.0+4: Otomatik GPS konumu algilama ve sehir bazli tatlici merkezleri entegre edildi."
+          releaseNotes: "Mekan Radari v1.0.0+5: Yeni Ana Sayfa, alt gezinme cubugu (Bottom Navigation Bar), harita ici arama ve otomatik konum algilama eklendi."
