@@ -122,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
         lat: pos.latitude,
         lon: pos.longitude,
         label: label,
+        autoLoad: false,
       );
     } catch (_) {
       _fallbackToDefaultLocation();
@@ -135,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
         lat: 40.9862,
         lon: 29.0264,
         label: 'Kadıköy - Moda & Çarşı',
+        autoLoad: false,
       );
     }
   }
@@ -470,40 +472,52 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   Expanded(
+                    flex: 3,
                     child: InkWell(
                       key: const Key('explore_venues_button'),
-                      onTap: () {
+                      onTap: () async {
+                        if (_controller.allPlaces.isEmpty) {
+                          await _controller.loadPlaces();
+                        }
                         setState(() {
                           _selectedTabIndex = 1;
                         });
                       },
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(14),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                          gradient: const LinearGradient(
+                            colors: [AppColors.primary, AppColors.primaryDark],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.35),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Icon(
                               Icons.format_list_bulleted_rounded,
-                              size: 16,
-                              color: AppColors.primaryDark,
+                              size: 18,
+                              color: Colors.white,
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 8),
                             Text(
                               places.isEmpty
-                                  ? 'Mekanları Ara'
+                                  ? 'Mekanları Listele'
                                   : 'Mekanları Listele (${places.length})',
                               style: const TextStyle(
-                                color: AppColors.primaryDark,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13.5,
                               ),
                             ),
                           ],
@@ -511,11 +525,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Expanded(
+                    flex: 2,
                     child: InkWell(
                       key: const Key('explore_map_button'),
-                      onTap: () {
+                      onTap: () async {
+                        if (_controller.allPlaces.isEmpty) {
+                          await _controller.loadPlaces();
+                        }
                         if (!_controller.isMapView) {
                           _controller.toggleViewMode();
                         }
@@ -523,14 +541,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           _selectedTabIndex = 2;
                         });
                       },
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(14),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           color: AppColors.blueLight,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: AppColors.blue.withValues(alpha: 0.3),
+                            color: AppColors.blue.withValues(alpha: 0.35),
                           ),
                         ),
                         child: const Row(
@@ -538,7 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Icon(
                               Icons.map_rounded,
-                              size: 16,
+                              size: 18,
                               color: AppColors.blue,
                             ),
                             SizedBox(width: 6),
@@ -546,8 +564,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               'Haritada Gör',
                               style: TextStyle(
                                 color: AppColors.blue,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
                               ),
                             ),
                           ],
@@ -629,18 +647,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
-            itemCount: places.length,
-            itemBuilder: (context, index) {
-              final place = places[index];
-              return VenueCard(
-                place: place,
-                isFavorite: _controller.isFavorite(place.id),
-                onToggleFavorite: () => _controller.toggleFavorite(place.id),
-                onTap: () => _openPlaceDetails(place),
-              );
-            },
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () => _controller.loadPlaces(),
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
+              itemCount: places.length,
+              itemBuilder: (context, index) {
+                final place = places[index];
+                return VenueCard(
+                  place: place,
+                  isFavorite: _controller.isFavorite(place.id),
+                  onToggleFavorite: () => _controller.toggleFavorite(place.id),
+                  onTap: () => _openPlaceDetails(place),
+                );
+              },
+            ),
           ),
         ),
       ],

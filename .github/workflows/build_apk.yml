@@ -49,4 +49,4 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           file: build/app/outputs/flutter-apk/app-release.apk
           testers: furkanc28@gmail.com, rumeysa1166metin@gmail.com, mtn.rumeysa@gmail.com
-          releaseNotes: "Mekan Radari v1.0.0+6: Hizli ve canli harita veri akisi (Overpass France ayna entegrasyonu), gercek GPS konumu onbellegi ve filtreleme duzeltmeleri."
+          releaseNotes: "Mekan Radari v1.0.0+7: Modern arayuz tasarimi, belirgin 'Mekanlari Listele' butonu, istege bagli arama baslatma ve canli filtreleme optimizasyonlari."

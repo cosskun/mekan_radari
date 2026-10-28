@@ -384,18 +384,21 @@ class PlacesController extends ChangeNotifier {
     }
   }
 
-  /// Updates center coordinates and location label, then loads places.
+  /// Updates center coordinates and location label, then optionally loads places.
   Future<void> setLocation({
     required double lat,
     required double lon,
     required String label,
+    bool autoLoad = true,
   }) async {
     _centerLat = lat;
     _centerLon = lon;
     _locationLabel = label;
     _recomputeAllPlaces();
     notifyListeners();
-    await loadPlaces();
+    if (autoLoad) {
+      await loadPlaces();
+    }
   }
 
   /// Fetches nearby places from [PlacesRepository], merges user reviews,
