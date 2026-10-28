@@ -44,6 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       _controller = PlacesController(
         initialLocationLabel: 'Konum Belirleniyor...',
+        initialMinRating: 0.0,
+        initialCategoryId: 'all',
       );
       _isInternalController = true;
       _initProductionLocationFlow();
@@ -100,10 +102,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _acquireGpsAndLoadPlaces() async {
     try {
-      final pos = await Geolocator.getCurrentPosition(
+      Position? pos;
+      try {
+        pos = await Geolocator.getLastKnownPosition();
+      } catch (_) {}
+
+      pos ??= await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.medium,
-          timeLimit: Duration(seconds: 8),
+          timeLimit: Duration(seconds: 10),
         ),
       );
 

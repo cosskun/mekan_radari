@@ -19,11 +19,20 @@ class PlacesRepositoryImpl implements PlacesRepository {
     'https://overpass.kumi.systems/api/interpreter',
   ];
 
+  static const List<String> productionOverpassEndpoints = [
+    'https://overpass.openstreetmap.fr/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+    'https://overpass-api.de/api/interpreter',
+    'https://lz4.overpass-api.de/api/interpreter',
+  ];
+
   PlacesRepositoryImpl({
     http.Client? client,
     List<String>? overpassEndpoints,
   })  : _client = client ?? http.Client(),
-        _overpassEndpoints = overpassEndpoints ?? defaultOverpassEndpoints;
+        _overpassEndpoints = overpassEndpoints ??
+            (client != null ? defaultOverpassEndpoints : productionOverpassEndpoints);
 
   /// Clears in-memory cache
   void clearCache() {
@@ -134,12 +143,20 @@ class PlacesRepositoryImpl implements PlacesRepository {
     final overpassQuery = '''
 [out:json][timeout:15];
 (
-  node["amenity"~"^(cafe|restaurant|fast_food|ice_cream|bar|pub)\$"](around:$fetchRadius,$lat,$lon);
-  way["amenity"~"^(cafe|restaurant|fast_food|ice_cream|bar|pub)\$"](around:$fetchRadius,$lat,$lon);
-  node["shop"~"^(pastry|confectionery|bakery|chocolate|coffee|tea|deli)\$"](around:$fetchRadius,$lat,$lon);
-  way["shop"~"^(pastry|confectionery|bakery|chocolate|coffee|tea|deli)\$"](around:$fetchRadius,$lat,$lon);
+  nwr["amenity"="cafe"](around:$fetchRadius,$lat,$lon);
+  nwr["amenity"="restaurant"](around:$fetchRadius,$lat,$lon);
+  nwr["amenity"="fast_food"](around:$fetchRadius,$lat,$lon);
+  nwr["amenity"="ice_cream"](around:$fetchRadius,$lat,$lon);
+  nwr["amenity"="pub"](around:$fetchRadius,$lat,$lon);
+  nwr["amenity"="bar"](around:$fetchRadius,$lat,$lon);
+  nwr["shop"="pastry"](around:$fetchRadius,$lat,$lon);
+  nwr["shop"="bakery"](around:$fetchRadius,$lat,$lon);
+  nwr["shop"="confectionery"](around:$fetchRadius,$lat,$lon);
+  nwr["shop"="chocolate"](around:$fetchRadius,$lat,$lon);
+  nwr["shop"="deli"](around:$fetchRadius,$lat,$lon);
+  nwr["shop"="coffee"](around:$fetchRadius,$lat,$lon);
 );
-out center 250;
+out center 150;
 ''';
 
     for (final endpoint in _overpassEndpoints) {
@@ -153,7 +170,7 @@ out center 250;
               },
               body: {'data': overpassQuery},
             )
-            .timeout(const Duration(milliseconds: 3800));
+            .timeout(const Duration(milliseconds: 6500));
 
         if (response.statusCode == 200) {
           final decoded = jsonDecode(utf8.decode(response.bodyBytes));
@@ -170,8 +187,8 @@ out center 250;
     }
 
     // 3. Fallback if offline or all Overpass mirrors timed out
+    // Note: Do NOT cache fallback in _cache so subsequent requests try live network again
     final fallback = _buildFallbackPlacesAround(lat, lon);
-    _cache[cacheKey] = (timestamp: DateTime.now(), places: fallback);
     return fallback;
   }
 
@@ -681,15 +698,18 @@ out center 250;
   }
 
   List<Place> _buildFallbackPlacesAround(double lat, double lon) {
+    final province = LocationPreset.detectProvince(lat, lon);
+    final isIstanbul = province == 'İstanbul';
+
     final offsets = [
-      (0.00018, 0.00015, 'Moda Çikolata & Tatlı Atölyesi', 'Tatlı & Pastane', 4.8, 412),
-      (-0.00025, 0.00012, 'Hafız Mustafa 1864 Tatlı & Baklava', 'Tatlı & Pastane', 4.7, 1280),
-      (0.00031, -0.00020, 'Asuman Çikolata & Waffle Dükkanı', 'Tatlı & Pastane', 4.6, 645),
-      (-0.00040, -0.00030, 'Viyana Kahvesi & Cheesecake', 'Kahve & Kafe', 4.5, 530),
-      (0.00065, 0.00045, 'Meşhur Beyoğlu Profiterol & Muhallebicisi', 'Tatlı & Pastane', 4.6, 390),
+      (0.00018, 0.00015, isIstanbul ? 'Moda Çikolata & Tatlı Atölyesi' : '$province Çikolata & Tatlı Atölyesi', 'Tatlı & Pastane', 4.8, 412),
+      (-0.00025, 0.00012, isIstanbul ? 'Hafız Mustafa 1864 Tatlı & Baklava' : 'Tarihi $province Baklavacısı', 'Tatlı & Pastane', 4.7, 1280),
+      (0.00031, -0.00020, isIstanbul ? 'Asuman Çikolata & Waffle Dükkanı' : '$province Waffle & Dondurma Evi', 'Tatlı & Pastane', 4.6, 645),
+      (-0.00040, -0.00030, isIstanbul ? 'Viyana Kahvesi & Cheesecake' : '$province Kahve Evi & Cheesecake', 'Kahve & Kafe', 4.5, 530),
+      (0.00065, 0.00045, isIstanbul ? 'Meşhur Beyoğlu Profiterol & Muhallebicisi' : 'Meşhur $province Profiterol & Muhallebicisi', 'Tatlı & Pastane', 4.6, 390),
       (-0.00080, 0.00060, 'Roast & Crumb 3. Nesil Kahve', 'Kahve & Kafe', 4.4, 210),
       (0.00120, -0.00090, 'Geleneksel Antep Baklavacısı', 'Tatlı & Pastane', 4.9, 890),
-      (-0.00150, -0.00110, 'Sıcak Kruvasan & Patisserie', 'Fırın & Kahvaltı', 4.5, 175),
+      (-0.00150, -0.00110, isIstanbul ? 'Sıcak Kruvasan & Patisserie' : '$province Sıcak Kruvasan & Fırın', 'Fırın & Kahvaltı', 4.5, 175),
     ];
 
     return offsets.map((o) {
@@ -707,7 +727,9 @@ out center 250;
         latitude: pLat,
         longitude: pLon,
         distanceMeters: dist,
-        address: 'Merkez Mah. Yakın Çevre (${dist.round()}m mesafede)',
+        address: isIstanbul
+            ? 'Merkez Mah. Yakın Çevre (${dist.round()}m mesafede)'
+            : '$province Merkez (${dist.round()}m mesafede)',
         openingHours: '09:00 - 23:30',
         isOpenNow: true,
         priceLevel: 2,

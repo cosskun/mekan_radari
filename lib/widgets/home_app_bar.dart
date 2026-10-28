@@ -74,10 +74,15 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         return;
       }
 
-      final pos = await Geolocator.getCurrentPosition(
+      Position? pos;
+      try {
+        pos = await Geolocator.getLastKnownPosition();
+      } catch (_) {}
+
+      pos ??= await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 8),
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 10),
         ),
       );
 
