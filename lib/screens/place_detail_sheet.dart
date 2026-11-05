@@ -702,7 +702,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                             onPressed: () => _openUrl(place.googleMapsSearchUrl),
                             icon: const Icon(Icons.open_in_new_rounded, size: 18),
                             label: const Text(
-                              'Google Harita & Yorumlar',
+                              'Google Puanı & Yorumlar',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -734,6 +734,28 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Trust Banner explaining live verification
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.blueLight,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.blue.withValues(alpha: 0.2)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.verified_user_rounded, size: 16, color: AppColors.blue),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Mekanın gerçek canlı puanı, fotoğrafları ve müşteri değerlendirmeleri doğrudan Google Haritalar üzerinden doğrulanır.',
+                              style: TextStyle(color: AppColors.blue, fontSize: 11.5),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 20),
 

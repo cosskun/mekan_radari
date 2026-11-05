@@ -59,6 +59,22 @@ class VenueCard extends StatelessWidget {
     }
   }
 
+  Future<void> _handleDirectionsUrl(BuildContext context) async {
+    final url = place.googleDirectionsUrl;
+    if (onLaunchUrl != null) {
+      await onLaunchUrl!(url);
+      return;
+    }
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Yol tarifi açılamadı.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final topReview = place.reviews.isNotEmpty ? place.reviews.first : null;
@@ -300,7 +316,32 @@ class VenueCard extends StatelessWidget {
                   TextButton.icon(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    onPressed: () => _handleDirectionsUrl(context),
+                    icon: const Icon(
+                      Icons.directions_walk_rounded,
+                      size: 15,
+                      color: AppColors.green,
+                    ),
+                    label: const Text(
+                      'Yol Tarifi',
+                      style: TextStyle(
+                        color: AppColors.green,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
                         vertical: 4,
                       ),
                       minimumSize: Size.zero,
@@ -309,7 +350,7 @@ class VenueCard extends StatelessWidget {
                     onPressed: () => _handleGoogleMapsUrl(context),
                     icon: const Icon(
                       Icons.open_in_new_rounded,
-                      size: 15,
+                      size: 14,
                       color: AppColors.blue,
                     ),
                     label: const Text(

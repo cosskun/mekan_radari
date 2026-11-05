@@ -476,6 +476,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: InkWell(
                       key: const Key('explore_venues_button'),
                       onTap: () async {
+                        // If center coordinates are still at default Moda while user hasn't chosen it,
+                        // attempt quick fresh GPS fetch first
+                        if (_controller.locationLabel.contains('Belirleniyor') ||
+                            (_controller.locationLabel.contains('Moda') && !_controller.locationLabel.contains('Seçilen'))) {
+                          try {
+                            final hasPermission = await Geolocator.checkPermission();
+                            if (hasPermission == LocationPermission.whileInUse ||
+                                hasPermission == LocationPermission.always) {
+                              final pos = await Geolocator.getCurrentPosition(
+                                locationSettings: const LocationSettings(
+                                  accuracy: LocationAccuracy.medium,
+                                  timeLimit: Duration(seconds: 4),
+                                ),
+                              );
+                              final prov = LocationPreset.detectProvince(pos.latitude, pos.longitude);
+                              await _controller.setLocation(
+                                lat: pos.latitude,
+                                lon: pos.longitude,
+                                label: 'Mevcut Konumum • $prov',
+                                autoLoad: false,
+                              );
+                            }
+                          } catch (_) {}
+                        }
+
                         if (_controller.allPlaces.isEmpty) {
                           await _controller.loadPlaces();
                         }
@@ -531,6 +556,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: InkWell(
                       key: const Key('explore_map_button'),
                       onTap: () async {
+                        if (_controller.locationLabel.contains('Belirleniyor') ||
+                            (_controller.locationLabel.contains('Moda') && !_controller.locationLabel.contains('Seçilen'))) {
+                          try {
+                            final hasPermission = await Geolocator.checkPermission();
+                            if (hasPermission == LocationPermission.whileInUse ||
+                                hasPermission == LocationPermission.always) {
+                              final pos = await Geolocator.getCurrentPosition(
+                                locationSettings: const LocationSettings(
+                                  accuracy: LocationAccuracy.medium,
+                                  timeLimit: Duration(seconds: 4),
+                                ),
+                              );
+                              final prov = LocationPreset.detectProvince(pos.latitude, pos.longitude);
+                              await _controller.setLocation(
+                                lat: pos.latitude,
+                                lon: pos.longitude,
+                                label: 'Mevcut Konumum • $prov',
+                                autoLoad: false,
+                              );
+                            }
+                          } catch (_) {}
+                        }
+
                         if (_controller.allPlaces.isEmpty) {
                           await _controller.loadPlaces();
                         }
