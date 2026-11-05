@@ -49,4 +49,4 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           file: build/app/outputs/flutter-apk/app-release.apk
           testers: furkanc28@gmail.com, rumeysa1166metin@gmail.com, mtn.rumeysa@gmail.com
-          releaseNotes: "Mekan Radari v1.0.0+8: Gercek konum kilitlenmesi, yuruyus ve rota yonlendirme dogrulugu, sifir maliyetli dogrudan Google Haritalar puan ve yorum dogrulamasi."
+          releaseNotes: "Mekan Radari v1.0.0+9: Gercek konum kilitlenmesi, yuruyus ve rota yonlendirme dogrulugu, sifir maliyetli dogrudan Google Haritalar puan ve yorum dogrulamasi."
