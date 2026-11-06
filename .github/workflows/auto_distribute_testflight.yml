@@ -23,12 +23,30 @@ jobs:
             { algorithm: "ES256", header: { kid: process.env.KEY_ID, typ: "JWT" } }
           );
           async function run() {
-            const res = await fetch("https://api.appstoreconnect.apple.com/v1/builds?filter[app]=6827139713&sort=-uploadedDate&limit=5", {
+            console.log("Checking builds...");
+            const res = await fetch("https://api.appstoreconnect.apple.com/v1/builds?filter[app]=6827139713&sort=-uploadedDate&limit=3", {
               headers: { Authorization: "Bearer " + token }
             });
+            console.log("Builds response status:", res.status);
             const data = await res.json();
-            for (const b of data.data) {
-              console.log("BUILD:", b.attributes.version, "STATE:", b.attributes.processingState, "ENC:", b.attributes.usesNonExemptEncryption);
+            if (data.data) {
+              for (const b of data.data) {
+                console.log("BUILD:", b.attributes.version, "STATE:", b.attributes.processingState);
+              }
+            } else {
+              console.log("Builds error body:", JSON.stringify(data));
+            }
+
+            console.log("\nChecking certificates (requires PLA accepted)...");
+            const certRes = await fetch("https://api.appstoreconnect.apple.com/v1/certificates", {
+              headers: { Authorization: "Bearer " + token }
+            });
+            console.log("Certificates response status:", certRes.status);
+            const certData = await certRes.json();
+            if (certData.errors) {
+              console.log("Certificates ERRORS:", JSON.stringify(certData.errors, null, 2));
+            } else {
+              console.log("Certificates OK! Total found:", (certData.data || []).length);
             }
           }
           run().catch(console.error);
