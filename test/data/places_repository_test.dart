@@ -162,7 +162,7 @@ void main() {
       expect(p1.dataSource, 'Canlı Harita Verisi (OSM)');
       expect(p1.rating, greaterThanOrEqualTo(3.8));
       expect(p1.rating, lessThanOrEqualTo(4.9));
-      expect(p1.reviews, isNotEmpty);
+      expect(p1.reviews, isEmpty);
       expect(p1.starDistribution.containsKey(5), isTrue);
 
       // Verify second place from way center

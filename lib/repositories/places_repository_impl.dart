@@ -316,14 +316,7 @@ out center 150;
           priceLevel: 2,
           tags: catInfo.tags,
           popularItems: catInfo.popularItems,
-          reviews: parsedReviews.isNotEmpty
-              ? parsedReviews
-              : _generateContextualReviews(
-                  id.hashCode,
-                  name,
-                  catInfo.category,
-                  rating,
-                ),
+          reviews: parsedReviews,
           starDistribution: _buildStarDistribution(rating),
           dataSource: 'Google Places API (Canlı)',
           customGoogleMapsUri: raw['googleMapsUri']?.toString(),
@@ -445,12 +438,7 @@ out center 150;
           priceLevel: 1 + (seed % 3),
           tags: extraTags.take(4).toList(),
           popularItems: catInfo.popularItems,
-          reviews: _generateContextualReviews(
-            seed,
-            rawName,
-            catInfo.category,
-            rating,
-          ),
+          reviews: const [],
           starDistribution: _buildStarDistribution(rating),
           dataSource: 'Canlı Harita Verisi (OSM)',
         ),
@@ -620,83 +608,6 @@ out center 150;
     };
   }
 
-  List<PlaceReview> _generateContextualReviews(
-    int seed,
-    String placeName,
-    String category,
-    double rating,
-  ) {
-    final rng = Random(seed);
-    final authors = [
-      ('Zeynep Kaya', 'Yerel Rehber • 142 yorum'),
-      ('Mert Demir', 'Yerel Rehber • 89 yorum'),
-      ('Elif Yılmaz', 'Gurme Gezgin • 215 yorum'),
-      ('Burak Şahin', 'Yerel Rehber • 64 yorum'),
-      ('Selin Arslan', 'Tatlı Tutkunu • 118 yorum'),
-      ('Caner Özkan', 'Yerel Rehber • 53 yorum'),
-      ('Ayşe Çelik', 'Yerel Rehber • 190 yorum'),
-      ('Emre Aydın', 'Lezzet Avcısı • 77 yorum'),
-    ];
-
-    final dessertComments = [
-      '$placeName gerçekten beklentimin çok üzerinde çıktı! Tatlıları günlük ve taptaze, özellikle çikolatalı ve sütlü tatlılarının kıvamı harika. Şeker oranı hiç baymıyor.',
-      'Yorumlara bakarak 4.5 yıldız üstü tatlıcı ararken keşfettik. San Sebastian cheesecake ve profiterolü efsane, porsiyonları gayet doyurucu.',
-      'Tatlı krizine birebir bir mekan. Çalışanlar çok güler yüzlü, çay ve kahve taze demleniyor. Yakındaysanız kesinlikle uğrayın.',
-      'Fıstıklı tatlıları ve dondurması birinci sınıf malzemeden yapılmış. Fiyat/performans olarak çevredeki en iyi tatlı noktalarından biri.',
-      'Akşam yürüyüşünde uğradık, vitrindeki pastalar ve tatlılar çok taze görünüyordu. Lezzeti de görüntüsü kadar başarılıydı.',
-    ];
-
-    final coffeeComments = [
-      '$placeName kahve çekirdeklerinin kalitesi ve yanındaki taze tatlılarıyla favori mekanımız oldu. Kahvenin yanında cheesecake kesinlikle denenmeli.',
-      'Hem çalışmak hem de arkadaşlarla tatlı-kahve keyfi yapmak için çok nezih bir ortam. Baristalar işini biliyor.',
-      'Latte ve tiramisu ikilisi muazzamdı. Mekan çok temiz, müzik sesi tam kıvamında.',
-      'Konum olarak çok merkezi, kahveleri her zaman standart yüksek kalitede çıkıyor.',
-    ];
-
-    final restaurantComments = [
-      '$placeName hem yemekleri hem de yemek sonrası ikram ettikleri tatlılarıyla tam puan hak ediyor. Servis çok hızlıydı.',
-      'Yemeklerin lezzeti, sıcak gelmesi ve porsiyon büyüklüğü çok iyi. Özellikle yemek üstüne söylediğimiz fırın sütlaç ve künefe harikaydı.',
-      'Hijyen ve kalite açısından bölgedeki en güvenilir mekanlardan. Fiyatlar sunulan kaliteye göre makul.',
-      'Ailecek gittik, herkesin sipariş ettiği tabak çok lezzetliydi. Tekrar geleceğiz.',
-    ];
-
-    final commentPool = category == 'Tatlı & Pastane'
-        ? dessertComments
-        : (category == 'Kahve & Kafe' ? coffeeComments : restaurantComments);
-
-    final times = [
-      '2 gün önce',
-      '1 hafta önce',
-      '2 hafta önce',
-      '3 hafta önce',
-      '1 ay önce',
-      '2 ay önce',
-    ];
-
-    final List<PlaceReview> reviews = [];
-    for (int i = 0; i < 4; i++) {
-      final author = authors[(seed + i * 3) % authors.length];
-      final comment = commentPool[(seed + i) % commentPool.length];
-      final revRating = i == 0
-          ? 5.0
-          : (rating >= 4.5
-              ? (i == 3 ? 4.0 : 5.0)
-              : (i % 2 == 0 ? 4.0 : 5.0));
-      reviews.add(
-        PlaceReview(
-          id: 'rev_${seed}_$i',
-          authorName: author.$1,
-          authorBadge: author.$2,
-          rating: revRating,
-          relativeTime: times[(seed + i) % times.length],
-          comment: comment,
-          likesCount: 2 + rng.nextInt(24),
-        ),
-      );
-    }
-    return reviews;
-  }
-
   List<Place> _buildFallbackPlacesAround(double lat, double lon) {
     final province = LocationPreset.detectProvince(lat, lon);
     final isIstanbul = province == 'İstanbul';
@@ -735,12 +646,7 @@ out center 150;
         priceLevel: 2,
         tags: catInfo.tags,
         popularItems: catInfo.popularItems,
-        reviews: _generateContextualReviews(
-          o.$3.hashCode,
-          o.$3,
-          o.$4,
-          o.$5,
-        ),
+        reviews: const [],
         starDistribution: _buildStarDistribution(o.$5),
         dataSource: 'Çevrimdışı Yedek Veri',
       );

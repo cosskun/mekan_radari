@@ -1197,7 +1197,34 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                       ),
                                     ),
                                   )
-                                else
+                                else ...[
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.blue,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    onPressed: () =>
+                                        _openUrl(place.googleMapsSearchUrl),
+                                    icon: const Icon(
+                                      Icons.open_in_new_rounded,
+                                      size: 16,
+                                    ),
+                                    label: const Text(
+                                      'Google\'da Tüm Gerçek Yorumları Oku',
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
                                   TextButton.icon(
                                     onPressed: _showAddReviewDialog,
                                     icon: const Icon(
@@ -1213,6 +1240,7 @@ class _PlaceDetailSheetState extends State<PlaceDetailSheet> {
                                       ),
                                     ),
                                   ),
+                                ],
                               ],
                             ),
                           );
